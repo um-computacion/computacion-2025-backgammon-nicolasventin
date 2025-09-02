@@ -2,7 +2,7 @@ import unittest
 from src.game.tablero import Tablero
 
 class TestTablero(unittest.TestCase):
-    def test__init__(self):
+    def setUp(self):
         self.tablero = Tablero()
 
     def test__turnos__(self):
