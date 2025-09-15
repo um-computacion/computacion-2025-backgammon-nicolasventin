@@ -9,7 +9,7 @@ class TestTablero(unittest.TestCase):
         self.assertEqual(self.tablero.__turnos__, 0)
 
     def test__cantidad_de_posiciones__(self):
-        self.assertEqual(len(self.tablero._Tablero__puntos__), 24)
+        self.assertEqual(len(self.tablero.__puntos__), 24)
 
     def test_posiciones_iniciales(self):
         posiciones_esperadas = [0] * 24
@@ -22,9 +22,19 @@ class TestTablero(unittest.TestCase):
         posiciones_esperadas[7]  = -3
         posiciones_esperadas[5]  = -5
 
-        self.assertEqual(self.tablero._Tablero__puntos__, posiciones_esperadas)
+        self.assertEqual(self.tablero.__puntos__, posiciones_esperadas)
+
+    def test_blancas(self):
+        self.assertEqual(self.tablero._format_ficha(2), "2B")
+        self.assertEqual(self.tablero._format_ficha(5), "5B")
+
+    def test_negras(self):
+        self.assertEqual(self.tablero._format_ficha(-1), "1N")
+        self.assertEqual(self.tablero._format_ficha(-4), "4N")
+
+    def test_vacio(self):
+        self.assertEqual(self.tablero._format_ficha(0), "--")
 
 
 if __name__ == '__main__':  
     unittest.main()
-        
