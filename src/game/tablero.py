@@ -20,3 +20,21 @@ class Tablero:
             return f"{abs(v)}N"
         else:
             return "--"
+        
+    def mostrar(self):
+        # Arriba: 11..0
+        arriba_idx = list(range(11, -1, -1))
+        # Abajo: 12..23
+        abajo_idx  = list(range(12, 24))
+
+        print("\n=== Tablero de Backgammon ===")
+        # Fichas arriba
+        print(" ".join(f"{i:02}" for i in arriba_idx))        
+        print(" ".join(self._format_ficha(self.__puntos__[i]) for i in arriba_idx))
+        # Separador
+        print("-" * 60)
+        # Fichas abajo
+        print(" ".join(self._format_ficha(self.__puntos__[i]) for i in abajo_idx))
+        print(" ".join(f"{i:02}" for i in abajo_idx))
+
+        print("=============================\n")
