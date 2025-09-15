@@ -12,3 +12,11 @@ class Tablero:
         self.__puntos__[12] = -5   # 5 negras
         self.__puntos__[7]  = -3   # 3 negras
         self.__puntos__[5]  = -5   # 5 negras
+
+    def _format_ficha(self, v: int) -> str:
+        if v > 0:
+            return f"{v}B"
+        elif v < 0:
+            return f"{abs(v)}N"
+        else:
+            return "--"
