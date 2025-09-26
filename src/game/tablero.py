@@ -1,6 +1,7 @@
 class Tablero:
     def __init__(self):
         self.__turnos__ = 0
+        self.pos = [ None for _ in range(24)]
         self.__puntos__ = [0] * 24
 
         self.__puntos__[0] =  2    # 2 blancas
@@ -60,3 +61,9 @@ class Tablero:
                 else:
                     result_row.append(' ')
         return result_board
+    
+    def get_piece(self, col):
+        if self.pos[col][0] == 'white':
+            return 'W'
+        else:
+            return 'B'
