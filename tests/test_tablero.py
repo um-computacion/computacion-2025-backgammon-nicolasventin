@@ -35,6 +35,51 @@ class TestTablero(unittest.TestCase):
     def test_vacio(self):
         self.assertEqual(self.tablero._format_ficha(0), "--")
 
+    def test_draw(self):
+        board = Tablero()
+        board.pos[0] = ('white', 3)
+        board.pos[1] = ('white', 8)
+        board.pos[23] = ('black', 1)
+        board.pos[22] = ('black', 3)
+        print(board.draw())
+        board_draw = board.draw()
+        print(f"board 0, 11: {board_draw[11][0]}")
+        self.assertEqual(
+            board.draw(),
+            [ # 10
+                [ # 1
+                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'W', 'W', 
+                ],
+                [ # 2
+                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'W', 'W', 
+                ],
+                [ # 3
+                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'W', 'W', 
+                ],
+                [ # 4
+                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'W', ' ', 
+                ],
+                [ # 5
+                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '4', ' ', 
+                ],
+                [ # 6
+                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
+                ],
+                [ # 7
+                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
+                ],
+                [ # 8
+                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
+                ],
+                [ # 9
+                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
+                ],
+                [ # 10
+                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
+                ],
+            ]
+        )
+
 
 if __name__ == '__main__':  
     unittest.main()
