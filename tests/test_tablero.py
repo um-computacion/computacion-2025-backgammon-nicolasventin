@@ -43,7 +43,7 @@ class TestTablero(unittest.TestCase):
         board.pos[22] = ('black', 3)
         print(board.draw())
         board_draw = board.draw()
-        print(f"board 0, 11: {board_draw[11][0]}")
+        print(f"board 0, 11: {board_draw[0][11]}")
         self.assertEqual(
             board.draw(),
             [ # 10
