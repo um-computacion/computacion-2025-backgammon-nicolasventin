@@ -60,10 +60,17 @@ class Tablero:
                         result_row.append(' ')    
                 else:
                     result_row.append(' ')
-        return result_board
-    
+
+        height, width = 10, 12
+        grid = [[' ' for _ in range(width)] for _ in range(height)]
+        for r in range(5):          # solo la mitad superior
+            for c in range(12):
+                grid[r][c] = result_board[c][r]  # transponer 12x5 -> 5x12 (arriba)
+
+        return grid
+
     def get_piece(self, col):
         if self.pos[col][0] == 'white':
             return 'W'
         else:
-            return 'B'
+            return 'B' 
