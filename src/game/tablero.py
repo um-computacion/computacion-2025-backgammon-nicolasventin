@@ -1,6 +1,7 @@
 class Tablero:
     def __init__(self):
         self.__turnos__ = 0
+        self.pos = [ None for _ in range(24)]
         self.__puntos__ = [0] * 24
 
         self.__puntos__[0] =  2    # 2 blancas
@@ -38,3 +39,38 @@ class Tablero:
         print(" ".join(f"{i:02}" for i in abajo_idx))
 
         print("=============================\n")
+
+    def draw(self):
+        result_board = [] 
+        for col in range(11, -1, -1):
+            result_row = []
+            result_board.append(result_row)
+            for row in range(0, 5):
+                if self.pos[col] is not None:
+                    if self.pos[col][1] > row:
+                        if row < 4:
+                            piece = self.get_piece(col)
+                        else:
+                            if self.pos[col][1] <= 5:
+                                piece = self.get_piece(col)
+                            else:
+                                piece = str(self.pos[col][1] - 4)
+                        result_row.append(piece)
+                    else:
+                        result_row.append(' ')    
+                else:
+                    result_row.append(' ')
+
+        height, width = 10, 12
+        grid = [[' ' for _ in range(width)] for _ in range(height)]
+        for r in range(5):          # solo la mitad superior
+            for c in range(12):
+                grid[r][c] = result_board[c][r]  # transponer 12x5 -> 5x12 (arriba)
+
+        return grid
+
+    def get_piece(self, col):
+        if self.pos[col][0] == 'white':
+            return 'W'
+        else:
+            return 'B' 
