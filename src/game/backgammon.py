@@ -10,4 +10,4 @@ class BackgammonGame:
             Jugador(name_p1, id_=1),
             Jugador(name_p2, id_=-1)
         ]
-        pass
+        self.__turno__ = 0
