@@ -8,5 +8,11 @@ class TestBackgammonGame(unittest.TestCase):
     def test_turno_inicial(self):
         self.assertEqual(self.game.__turno__, 0)
 
+    def test_jugadores_iniciales(self):
+        jugadores = self.game.__players__
+        self.assertEqual(len(jugadores), 2)
+        self.assertEqual(jugadores[0].ficha, "B")
+        self.assertEqual(jugadores[1].ficha, "N")
+
 if __name__ == '__main__':
     unittest.main()
