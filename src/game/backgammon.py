@@ -7,7 +7,7 @@ class BackgammonGame:
         self._board = Tablero()
         self.__dice__ = Dice()
         self.__players__ = [
-            Jugador(name_p1, id_=1),
-            Jugador(name_p2, id_=-1)
+            Jugador(name_p1, "B"),
+            Jugador(name_p2, "N")
         ]
         self.__turno__ = 0
