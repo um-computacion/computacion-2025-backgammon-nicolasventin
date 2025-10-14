@@ -1,7 +1,6 @@
 class Tablero:
     def __init__(self):
         self.__turnos__ = 0
-        self.pos = [ None for _ in range(24)]
         self.__puntos__ = [0] * 24
 
         self.__puntos__[0] =  2    # 2 blancas
@@ -69,8 +68,9 @@ class Tablero:
 
         return grid
 
-    def get_piece(self, col):
-        if self.pos[col][0] == 'white':
-            return 'W'
-        else:
-            return 'B' 
+    def _owner_and_count_from_puntos(self, idx: int):
+        v = self.__puntos__[idx]
+        if v > 0:  return ('white', v)
+        if v < 0:  return ('black', -v)
+        return (None, 0)
+
