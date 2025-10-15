@@ -73,4 +73,8 @@ class Tablero:
         if v > 0:  return ('white', v)
         if v < 0:  return ('black', -v)
         return (None, 0)
+    
+    def _piece(self, owner: str) -> str:
+        return 'W' if owner == 'white' else 'B'
+
 
