@@ -11,8 +11,8 @@ class TestBackgammonGame(unittest.TestCase):
     def test_jugadores_iniciales(self):
         jugadores = self.game.__players__
         self.assertEqual(len(jugadores), 2)
-        self.assertEqual(jugadores[0].ficha, "B")
-        self.assertEqual(jugadores[1].ficha, "N")
+        self.assertEqual(jugadores[0].__ficha__, "B")
+        self.assertEqual(jugadores[1].__ficha__, "N")
 
 if __name__ == '__main__':
     unittest.main()

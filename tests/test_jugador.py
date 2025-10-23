@@ -5,8 +5,8 @@ class TestJugador(unittest.TestCase):
     
     def test_crear_jugador(self):
         jugador = Jugador("Diego", "Blancas")
-        self.assertEqual(jugador.nombre, "Diego")
-        self.assertEqual(jugador.ficha, "Blancas")
+        self.assertEqual(jugador.__nombre__, "Diego")
+        self.assertEqual(jugador.__ficha__, "Blancas")
 
     def test_obtener_info(self):
         jugador = Jugador("Camila", "Negras")
