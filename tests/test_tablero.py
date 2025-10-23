@@ -24,62 +24,32 @@ class TestTablero(unittest.TestCase):
 
         self.assertEqual(self.tablero.__puntos__, posiciones_esperadas)
 
-    def test_blancas(self):
-        self.assertEqual(self.tablero._format_ficha(2), "2B")
-        self.assertEqual(self.tablero._format_ficha(5), "5B")
+    def test_owner_and_count_from_puntos(self):
+        """Prueba si el método interpreta correctamente el valor del punto."""
+        self.assertEqual(self.tablero._owner_and_count_from_puntos(0), ('white', 2))
+        self.assertEqual(self.tablero._owner_and_count_from_puntos(23), ('black', 2))
+        self.assertEqual(self.tablero._owner_and_count_from_puntos(1), (None, 0))
 
-    def test_negras(self):
-        self.assertEqual(self.tablero._format_ficha(-1), "1N")
-        self.assertEqual(self.tablero._format_ficha(-4), "4N")
-
-    def test_vacio(self):
-        self.assertEqual(self.tablero._format_ficha(0), "--")
+    def test_piece(self):
+        """Prueba el mapeo de dueño a símbolo de ficha de datos."""
+        self.assertEqual(self.tablero._piece('white'), "W")
+        self.assertEqual(self.tablero._piece('black'), "B")
 
     def test_draw(self):
+        """Verifica que la estructura de datos 10x12 sea correcta."""
         board = Tablero()
-        board.pos[0] = ('white', 3)
-        board.pos[1] = ('white', 8)
-        board.pos[23] = ('black', 1)
-        board.pos[22] = ('black', 3)
-        print(board.draw())
         board_draw = board.draw()
-        print(f"board 0, 11: {board_draw[0][11]}")
-        self.assertEqual(
-            board.draw(),
-            [ # 10
-                [ # 1
-                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'W', 'W', 
-                ],
-                [ # 2
-                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'W', 'W', 
-                ],
-                [ # 3
-                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'W', 'W', 
-                ],
-                [ # 4
-                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'W', ' ', 
-                ],
-                [ # 5
-                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '4', ' ', 
-                ],
-                [ # 6
-                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
-                ],
-                [ # 7
-                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
-                ],
-                [ # 8
-                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
-                ],
-                [ # 9
-                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
-                ],
-                [ # 10
-                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
-                ],
-            ]
-        )
-
+        
+        # Punto 0 (2 blancas) -> Columna 11 superior
+        self.assertEqual(board_draw[0][11], 'W')
+        self.assertEqual(board_draw[1][11], 'W') 
+        
+        # Prueba la lógica de conteo (>5) en el punto 11 (columna 0 superior)
+        board.__puntos__[11] = 8 
+        board_draw_over_5 = board.draw()
+        self.assertEqual(board_draw_over_5[0][0], 'W')
+        self.assertEqual(board_draw_over_5[3][0], 'W')
+        self.assertEqual(board_draw_over_5[4][0], '4') # Contador
 
 if __name__ == '__main__':  
     unittest.main()

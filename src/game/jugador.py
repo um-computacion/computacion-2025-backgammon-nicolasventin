@@ -1,7 +1,10 @@
 class Jugador:
+    """Clase que representa a un jugador de Backgammon."""
     def __init__(self, nombre, ficha):
-        self.nombre = nombre
-        self.ficha = ficha
+        """Inicializa al jugador con nombre y color de ficha."""
+        self.__nombre__ = nombre
+        self.__ficha__ = ficha
 
     def obtener_info(self):
-        return f"{self.nombre} ({self.ficha})"
+        """Retorna la información del jugador (Nombre (Ficha))."""
+        return f"{self.__nombre__} ({self.__ficha__})"
