@@ -52,15 +52,26 @@ class Tablero:
                 grid[5][c] = str(n - 4)    # contador en fila 6 (índice 5)
 
         return grid
+    
+    def mover_ficha(self, start_point: int, end_point: int):
+        """Mueve una ficha de start_point a end_point. Asume que el movimiento es válido."""
+        if start_point < 0 or start_point > 23:
+             raise ValueError("Punto de inicio fuera de rango (0-23).")
+        if self.__puntos__[start_point] > 0:
+            checker_value = 1
+        elif self.__puntos__[start_point] < 0:
+            checker_value = -1
+        else:
+            raise ValueError("No hay fichas para mover en el punto de inicio.")
 
-    def owner_and_count_from_puntos(self, idx: int):
+    def _owner_and_count_from_puntos(self, idx: int):
         """Retorna el dueño ('white'/'black') y la cantidad de fichas en un punto."""
         v = self.__puntos__[idx]
         if v > 0:  return ('white', v)
         if v < 0:  return ('black', -v)
         return (None, 0)
     
-    def piece(self, owner: str) -> str:
+    def _piece(self, owner: str) -> str:
         """Retorna el símbolo 'W' o 'B' para la representación de datos (no visual)."""
         return 'W' if owner == 'white' else 'B'
 
