@@ -1,5 +1,6 @@
 import unittest
 from src.game.tablero import Tablero
+from src.game.checker import Checker
 
 class TestTablero(unittest.TestCase):
     def setUp(self):
@@ -12,66 +13,92 @@ class TestTablero(unittest.TestCase):
         self.assertEqual(len(self.tablero.__puntos__), 24)
 
     def test_posiciones_iniciales(self):
-        posiciones_esperadas = [0] * 24
-        posiciones_esperadas[0]  =  2
-        posiciones_esperadas[11] =  5
-        posiciones_esperadas[16] =  3
-        posiciones_esperadas[18] =  5
-        posiciones_esperadas[23] = -2
-        posiciones_esperadas[12] = -5
-        posiciones_esperadas[7]  = -3
-        posiciones_esperadas[5]  = -5
+        self.assertEqual(len(self.tablero.__puntos__[0]), 2)
+        self.assertEqual(self.tablero.__puntos__[0][0].get_color(), 'B')
+        self.assertEqual(len(self.tablero.__puntos__[11]), 5)
+        self.assertEqual(self.tablero.__puntos__[11][0].get_color(), 'B')
+        self.assertEqual(len(self.tablero.__puntos__[16]), 3)
+        self.assertEqual(self.tablero.__puntos__[16][0].get_color(), 'B')
+        self.assertEqual(len(self.tablero.__puntos__[18]), 5)
+        self.assertEqual(self.tablero.__puntos__[18][0].get_color(), 'B')
 
-        self.assertEqual(self.tablero.__puntos__, posiciones_esperadas)
+        self.assertEqual(len(self.tablero.__puntos__[23]), 2)
+        self.assertEqual(self.tablero.__puntos__[23][0].get_color(), 'N')
+        self.assertEqual(len(self.tablero.__puntos__[12]), 5)
+        self.assertEqual(self.tablero.__puntos__[12][0].get_color(), 'N')
+        self.assertEqual(len(self.tablero.__puntos__[7]), 3)
+        self.assertEqual(self.tablero.__puntos__[7][0].get_color(), 'N')
+        self.assertEqual(len(self.tablero.__puntos__[5]), 5)
+        self.assertEqual(self.tablero.__puntos__[5][0].get_color(), 'N')
+
+        self.assertEqual(len(self.tablero.__bar_blancas__), 0)
+        self.assertEqual(len(self.tablero.__bar_negras__), 0)
 
     def test_owner_and_count_from_puntos(self):
-        """Prueba si el método interpreta correctamente el valor del punto."""
-        self.assertEqual(self.tablero._owner_and_count_from_puntos(0), ('white', 2))
-        self.assertEqual(self.tablero._owner_and_count_from_puntos(23), ('black', 2))
+        owner, count = self.tablero._owner_and_count_from_puntos(0)
+        self.assertEqual(owner, 'white')
+        self.assertEqual(count, 2)
+        
+        owner, count = self.tablero._owner_and_count_from_puntos(23)
+        self.assertEqual(owner, 'black')
+        self.assertEqual(count, 2)
+        
         self.assertEqual(self.tablero._owner_and_count_from_puntos(1), (None, 0))
 
     def test_piece(self):
-        """Prueba el mapeo de dueño a símbolo de ficha de datos."""
         self.assertEqual(self.tablero._piece('white'), "W")
         self.assertEqual(self.tablero._piece('black'), "B")
 
     def test_draw(self):
-        """Verifica que la estructura de datos 10x12 sea correcta."""
         board = Tablero()
         board_draw = board.draw()
         
-        # Punto 0 (2 blancas) -> Columna 11 superior
         self.assertEqual(board_draw[0][11], 'W')
         self.assertEqual(board_draw[1][11], 'W') 
         
-        # Prueba la lógica de conteo (>5) en el punto 11 (columna 0 superior)
-        board.__puntos__[11] = 8 
+        for _ in range(3):
+            board.__puntos__[11].append(Checker('B'))
+            
         board_draw_over_5 = board.draw()
         self.assertEqual(board_draw_over_5[0][0], 'W')
         self.assertEqual(board_draw_over_5[3][0], 'W')
-        self.assertEqual(board_draw_over_5[4][0], '4') # Contador
+        self.assertEqual(board_draw_over_5[4][0], '4') 
+    
+    def test_hit_opponent(self):
+        self.tablero.__puntos__[10] = [Checker('N')]
+        self.tablero.hit_opponent(10)
+        
+        self.assertEqual(len(self.tablero.__puntos__[10]), 0)
+        self.assertEqual(len(self.tablero.__bar_negras__), 1)
+        self.assertTrue(self.tablero.__bar_negras__[0].comida)
+        
+        self.tablero.__puntos__[15] = [Checker('B')]
+        self.tablero.hit_opponent(15)
+        
+        self.assertEqual(len(self.tablero.__puntos__[15]), 0)
+        self.assertEqual(len(self.tablero.__bar_blancas__), 1)
+        self.assertTrue(self.tablero.__bar_blancas__[0].comida)
+        
+        self.tablero.__puntos__[5] = [Checker('N'), Checker('N')]
+        self.assertFalse(self.tablero.hit_opponent(5))
 
     def test_mover_ficha_blanca(self):
-        """Verifica el movimiento de una ficha blanca (0 -> 1)."""
         start_point, end_point = 0, 1
         
         self.tablero.mover_ficha(start_point, end_point)
-        self.assertEqual(self.tablero.__puntos__[start_point], 1)
-        self.assertEqual(self.tablero.__puntos__[end_point], 1)
+        self.assertEqual(len(self.tablero.__puntos__[start_point]), 1)
+        self.assertEqual(len(self.tablero.__puntos__[end_point]), 1)
+        self.assertEqual(self.tablero.__puntos__[end_point][0].get_color(), 'B')
 
     def test_mover_ficha_negra(self):
-        """Verifica el movimiento de una ficha negra (23 -> 22)."""
         start_point, end_point = 23, 22
         self.tablero.mover_ficha(start_point, end_point)
-        self.assertEqual(self.tablero.__puntos__[start_point], -1)
-        self.assertEqual(self.tablero.__puntos__[end_point], -1)
+        self.assertEqual(len(self.tablero.__puntos__[start_point]), 1)
+        self.assertEqual(len(self.tablero.__puntos__[end_point]), 1)
+        self.assertEqual(self.tablero.__puntos__[end_point][0].get_color(), 'N')
 
     def test_mover_ficha_errores(self):
-        """Verifica que se lancen las excepciones esperadas (rango y vacío)."""
-        with self.assertRaises(ValueError, msg="Debería lanzar ValueError para índice fuera de rango (24)."):
+        with self.assertRaises(ValueError):
             self.tablero.mover_ficha(24, 23)
-        with self.assertRaises(Exception, msg="Debería lanzar Exception al intentar mover ficha desde punto vacío (índice 2)."):
+        with self.assertRaises(Exception):
             self.tablero.mover_ficha(2, 3)
-
-if __name__ == '__main__':  
-    unittest.main()
