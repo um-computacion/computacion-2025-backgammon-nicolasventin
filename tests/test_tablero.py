@@ -51,5 +51,27 @@ class TestTablero(unittest.TestCase):
         self.assertEqual(board_draw_over_5[3][0], 'W')
         self.assertEqual(board_draw_over_5[4][0], '4') # Contador
 
+    def test_mover_ficha_blanca(self):
+        """Verifica el movimiento de una ficha blanca (0 -> 1)."""
+        start_point, end_point = 0, 1
+        
+        self.tablero.mover_ficha(start_point, end_point)
+        self.assertEqual(self.tablero.__puntos__[start_point], 1)
+        self.assertEqual(self.tablero.__puntos__[end_point], 1)
+
+    def test_mover_ficha_negra(self):
+        """Verifica el movimiento de una ficha negra (23 -> 22)."""
+        start_point, end_point = 23, 22
+        self.tablero.mover_ficha(start_point, end_point)
+        self.assertEqual(self.tablero.__puntos__[start_point], -1)
+        self.assertEqual(self.tablero.__puntos__[end_point], -1)
+
+    def test_mover_ficha_errores(self):
+        """Verifica que se lancen las excepciones esperadas (rango y vacío)."""
+        with self.assertRaises(ValueError, msg="Debería lanzar ValueError para índice fuera de rango (24)."):
+            self.tablero.mover_ficha(24, 23)
+        with self.assertRaises(Exception, msg="Debería lanzar Exception al intentar mover ficha desde punto vacío (índice 2)."):
+            self.tablero.mover_ficha(2, 3)
+
 if __name__ == '__main__':  
     unittest.main()

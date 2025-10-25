@@ -62,7 +62,11 @@ class Tablero:
         elif self.__puntos__[start_point] < 0:
             checker_value = -1
         else:
-            raise ValueError("No hay fichas para mover en el punto de inicio.")
+            raise Exception("No hay fichas para mover en el punto de inicio.")
+        
+        self.__puntos__[start_point] -= checker_value
+        
+        self.__puntos__[end_point] += checker_value
 
     def _owner_and_count_from_puntos(self, idx: int):
         """Retorna el dueño ('white'/'black') y la cantidad de fichas en un punto."""
