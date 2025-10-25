@@ -12,3 +12,6 @@ class TestJugador(unittest.TestCase):
         jugador = Jugador("Camila", "Negras")
         resultado = jugador.obtener_info()
         self.assertEqual(resultado, "Camila (Negras)")
+
+if __name__ == '__main__':
+    unittest.main()

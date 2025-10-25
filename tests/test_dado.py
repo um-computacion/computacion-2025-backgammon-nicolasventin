@@ -1,6 +1,7 @@
 from src.game.dado import get_dice
 from unittest import TestCase
 from unittest.mock import patch
+import unittest
 
 
 class TestDice(TestCase):
@@ -55,3 +56,6 @@ class TestDice(TestCase):
             self.assertEqual(dice[3], 1)
             self.assertTrue(randint_patched.called)
             self.assertEqual(randint_patched.call_count, 2)
+
+if __name__ == '__main__':
+    unittest.main()
