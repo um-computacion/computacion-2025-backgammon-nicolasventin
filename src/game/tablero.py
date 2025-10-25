@@ -1,27 +1,33 @@
+from .checker import Checker
+
 class Tablero:
     """Clase que maneja el estado del tablero de Backgammon."""
     def __init__(self):
         """Inicializa el tablero con posiciones y el estado del juego."""
         self.__turnos__ = 0
-        self.__puntos__ = [0] * 24
+        self.__puntos__: list[list[Checker]] = [[] for _ in range(24)]
 
-        # Posiciones iniciales
-        self.__puntos__[0] =  2    # 2 blancas
-        self.__puntos__[11] = 5    # 5 blancas
-        self.__puntos__[16] = 3    # 3 blancas
-        self.__puntos__[18] = 5    # 5 blancas
+        self.__bar_blancas__: list[Checker] = []
+        self.__bar_negras__: list[Checker] = []
 
-        self.__puntos__[23] = -2   # 2 negras
-        self.__puntos__[12] = -5   # 5 negras
-        self.__puntos__[7]  = -3   # 3 negras
-        self.__puntos__[5]  = -5   # 5 negras
+        def create_checkers(color, count):
+            return [Checker(color) for _ in range(count)]
+
+        self.__puntos__[0].extend(create_checkers('B', 2))
+        self.__puntos__[11].extend(create_checkers('B', 5))
+        self.__puntos__[16].extend(create_checkers('B', 3))
+        self.__puntos__[18].extend(create_checkers('B', 5))
+
+        self.__puntos__[23].extend(create_checkers('N', 2))
+        self.__puntos__[12].extend(create_checkers('N', 5))
+        self.__puntos__[7].extend(create_checkers('N', 3))
+        self.__puntos__[5].extend(create_checkers('N', 5))
 
     def draw(self):
         """Devuelve la grilla del tablero (matriz 10x12) como estructura de datos."""
         height, width = 10, 12
         grid = [[' ' for _ in range(width)] for _ in range(height)]
 
-        # Mitad superior: columnas 0..11 representan puntos 11..0 (izq -> der)
         for c in range(12):
             point = 11 - c
             owner, n = self._owner_and_count_from_puntos(point)
@@ -29,14 +35,13 @@ class Tablero:
                 continue
             piece = self._piece(owner)
             if n <= 5:
-                for r in range(n):         # apilar desde arriba
+                for r in range(n):
                     grid[r][c] = piece
             else:
                 for r in range(4):
                     grid[r][c] = piece
-                grid[4][c] = str(n - 4)   # contador en fila 5 (índice 4)
+                grid[4][c] = str(n - 4)
 
-        # Mitad inferior: columnas 0..11 representan puntos 12..23 (izq -> der)
         for c in range(12):
             point = 12 + c
             owner, n = self._owner_and_count_from_puntos(point)
@@ -44,39 +49,59 @@ class Tablero:
                 continue
             piece = self._piece(owner)
             if n <= 5:
-                for k in range(n):         # apilar desde abajo
+                for k in range(n):
                     grid[9 - k][c] = piece
             else:
                 for k in range(4):
                     grid[9 - k][c] = piece
-                grid[5][c] = str(n - 4)    # contador en fila 6 (índice 5)
+                grid[5][c] = str(n - 4)
 
         return grid
     
     def mover_ficha(self, start_point: int, end_point: int):
         """Mueve una ficha de start_point a end_point. Asume que el movimiento es válido."""
+        
         if start_point < 0 or start_point > 23:
              raise ValueError("Punto de inicio fuera de rango (0-23).")
-        if self.__puntos__[start_point] > 0:
-            checker_value = 1
-        elif self.__puntos__[start_point] < 0:
-            checker_value = -1
-        else:
+        
+        start_list = self.__puntos__[start_point]
+        
+        if not start_list:
             raise Exception("No hay fichas para mover en el punto de inicio.")
+
+        checker_to_move = start_list.pop()
         
-        self.__puntos__[start_point] -= checker_value
+        self.__puntos__[end_point].append(checker_to_move)
+    
+    def hit_opponent(self, end_point: int) -> bool:
+        """Verifica si hay un hit en end_point y mueve la ficha rival a la barra."""
         
-        self.__puntos__[end_point] += checker_value
+        point_list = self.__puntos__[end_point]
+        
+        if len(point_list) == 1:
+            hit_checker = point_list.pop()
+            hit_checker.comida = True
+            if hit_checker.get_color() == 'B':
+                self.__bar_blancas__.append(hit_checker)
+            elif hit_checker.get_color() == 'N':
+                self.__bar_negras__.append(hit_checker)
+            
+            return True
+        
+        return False
 
     def _owner_and_count_from_puntos(self, idx: int):
-        """Retorna el dueño ('white'/'black') y la cantidad de fichas en un punto."""
-        v = self.__puntos__[idx]
-        if v > 0:  return ('white', v)
-        if v < 0:  return ('black', -v)
-        return (None, 0)
+        """Helper: Retorna el dueño ('white'/'black') y la cantidad de fichas en un punto."""
+        point_list = self.__puntos__[idx]
+        count = len(point_list)       
+        if count == 0:
+            return (None, 0)       
+        owner_color = point_list[0].get_color()
+        owner_str = 'white' if owner_color == 'B' else 'black'
+
+        return (owner_str, count)
     
     def _piece(self, owner: str) -> str:
-        """Retorna el símbolo 'W' o 'B' para la representación de datos (no visual)."""
+        """Helper: Retorna el símbolo 'W' o 'B' para la representación de datos (no visual)."""
         return 'W' if owner == 'white' else 'B'
-
 
