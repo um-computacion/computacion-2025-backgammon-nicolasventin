@@ -1,6 +1,7 @@
 from src.game.tablero import Tablero
 from src.game.jugador import Jugador
 from src.game.dado import Dice
+from .checker import Checker
 
 class BackgammonGame:
     """Clase principal que maneja la lógica y el estado de la partida."""
@@ -27,26 +28,44 @@ class BackgammonGame:
     
     def validar_movimiento(self, start_point: int, end_point: int) -> bool:
         """Verifica si un movimiento de start_point a end_point es legal."""
+        
+        if start_point < 0 or start_point > 23 or end_point < 0 or end_point > 23:
+             return False 
+
         player = self.obtener_jugador_actual()       
-        is_white = (player.__ficha__ == "B") 
-        ficha_count_start = self.__board__.__puntos__[start_point]
-        if is_white and ficha_count_start <= 0:
+        player_color = player.__ficha__
+
+        start_list = self.__board__.__puntos__[start_point]
+        end_list = self.__board__.__puntos__[end_point]
+        
+        if not start_list or start_list[0].get_color() != player_color:
             return False 
-        if not is_white and ficha_count_start >= 0:
-            return False           
         distance = end_point - start_point 
+        is_white = (player_color == 'B') 
+
         if is_white and distance >= 0:
             return False
         if not is_white and distance <= 0:
-            return False       
+            return False        
         required_distance = abs(distance)       
         if required_distance not in self.__dados_restantes__:
             return False 
-        ficha_count_end = self.__board__.__puntos__[end_point]
-        if is_white:
-            if ficha_count_end <= -2:
+        if end_list:
+            opponent_color = 'N' if is_white else 'B'
+            if end_list[0].get_color() == opponent_color and len(end_list) >= 2:
                 return False 
-        else:
-            if ficha_count_end >= 2:
-                return False        
         return True    
+
+    def ejecutar_movimiento(self, start_point: int, end_point: int):
+        """Aplica el movimiento al tablero y consume el dado utilizado."""
+        
+        if self.validar_movimiento(start_point, end_point):            
+            self.__board__.mover_ficha(start_point, end_point)
+            distance = abs(end_point - start_point)
+            try:
+                self.__dados_restantes__.remove(distance)
+            except ValueError:
+                pass
+        
+        else:
+            raise ValueError("Movimiento inválido según las reglas del Backgammon.")
