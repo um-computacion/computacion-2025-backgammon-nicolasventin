@@ -99,6 +99,13 @@ class TestTablero(unittest.TestCase):
 
     def test_mover_ficha_errores(self):
         with self.assertRaises(ValueError):
-            self.tablero.mover_ficha(24, 23)
+            self.tablero.mover_ficha(25, 23)
         with self.assertRaises(Exception):
             self.tablero.mover_ficha(2, 3)
+        with self.assertRaises(Exception):
+            self.tablero.mover_ficha(24, 18)
+        with self.assertRaises(Exception):
+            self.tablero.mover_ficha(-1, 6)
+
+if __name__ == '__main__':
+    unittest.main()

@@ -60,17 +60,21 @@ class Tablero:
     
     def mover_ficha(self, start_point: int, end_point: int):
         """Mueve una ficha de start_point a end_point. Asume que el movimiento es válido."""
-        
-        if start_point < 0 or start_point > 23:
-             raise ValueError("Punto de inicio fuera de rango (0-23).")
-        
-        start_list = self.__puntos__[start_point]
-        
-        if not start_list:
-            raise Exception("No hay fichas para mover en el punto de inicio.")
-
-        checker_to_move = start_list.pop()
-        
+        if start_point < -1 or start_point > 24:
+             raise ValueError("Punto de inicio fuera de rango (-1 a 24).")
+        checker_to_move = None
+        if start_point == 24:
+            if not self.__bar_blancas__: raise Exception("No hay fichas blancas en la barra.")
+            checker_to_move = self.__bar_blancas__.pop()
+            checker_to_move.comida = False
+        elif start_point == -1:
+            if not self.__bar_negras__: raise Exception("No hay fichas negras en la barra.")
+            checker_to_move = self.__bar_negras__.pop()
+            checker_to_move.comida = False
+        else:
+            start_list = self.__puntos__[start_point]
+            if not start_list: raise Exception("No hay fichas para mover en el punto de inicio.")
+            checker_to_move = start_list.pop()
         self.__puntos__[end_point].append(checker_to_move)
     
     def hit_opponent(self, end_point: int) -> bool:
