@@ -76,6 +76,37 @@ class Tablero:
             if not start_list: raise Exception("No hay fichas para mover en el punto de inicio.")
             checker_to_move = start_list.pop()
         self.__puntos__[end_point].append(checker_to_move)
+
+    def _is_home_board_ready(self, color: str) -> bool:
+        """Verifica si todas las fichas de un color están en el cuadrante de inicio (Home Board)."""
+        
+        if color == 'B' and len(self.__bar_blancas__) > 0:
+            return False
+        if color == 'N' and len(self.__bar_negras__) > 0:
+            return False
+        if color == 'B':
+            check_range = range(0, 18)
+        else: 
+            check_range = range(6, 24)
+        for point_index in check_range:
+            point_list = self.__puntos__[point_index]
+            if point_list and point_list[0].get_color() == color:
+                return False 
+        return True
+    
+    def get_piece_count(self, color: str) -> int:
+        """Retorna el número total de fichas de un color que aún están en el tablero (puntos + barra)."""
+        count = 0
+        
+        if color == 'B':
+            count += len(self.__bar_blancas__)
+        else:
+            count += len(self.__bar_negras__)
+            
+        for point_list in self.__puntos__:
+            if point_list and point_list[0].get_color() == color:
+                count += len(point_list)
+        return count
     
     def hit_opponent(self, end_point: int) -> bool:
         """Verifica si hay un hit en end_point y mueve la ficha rival a la barra."""
