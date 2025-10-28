@@ -254,3 +254,84 @@ src/tests/test_tablero.py
 src/tests/test_backgammon.py
 
 creacion de tests/test_checker.py
+
+# Prompt 3
+
+Modelo de IA:  Gemini Pro 2.5 Flash
+
+Prompt Utilizado:
+
+Necesito hacer los test para _is_home_board_ready y para get_piece_count de una forma sencilla y legible sin anotaciones extras
+
+Respuesta:
+
+
+Aquí tienes los tests unitarios para _is_home_board_ready y get_piece_count, diseñados para ser sencillos y sin anotaciones extra.Esa función auxiliar (_setup_checkers) es un método de ayuda (helper) diseñado exclusivamente para simplificar la creación de escenarios complejos dentro de tus pruebas unitarias.
+
+    #Nota: El helper _setup_checkers se debe definir en tests/test_backgammon.py y replicarse aquí si es necesario, o usar la importación de Checker para la inicialización manual.
+
+    def _setup_checkers(self, point, color, count):
+        """Helper para configurar un punto con objetos Checker."""
+        from src.game.checker import Checker
+        self.tablero.__puntos__[point] = [Checker(color) for _ in range(count)]
+
+    def test_get_piece_count(self):
+        """Verifica que el conteo total de fichas en el tablero y barra sea correcto (debe ser 15)."""
+        # Estado Inicial
+        self.assertEqual(self.tablero.get_piece_count('B'), 15)
+        self.assertEqual(self.tablero.get_piece_count('N'), 15)
+        
+        # Quitar una ficha blanca del punto 0 (simula Bear Off)
+        self.tablero.__puntos__[0].pop()
+        self.assertEqual(self.tablero.get_piece_count('B'), 14)
+        
+        # Simular una ficha negra golpeada (el conteo total debe seguir siendo 15)
+        self.tablero.hit_opponent(23)
+        self.assertEqual(self.tablero.get_piece_count('N'), 15)
+        self.assertEqual(len(self.tablero.__bar_negras__), 1)
+
+
+    def test_is_home_board_ready(self):
+        """Verifica la precondición de Bearing Off: todas las fichas en Home Board."""
+        
+        # 1. ESTADO INICIAL (Falla, fichas en puntos exteriores)
+        self.assertFalse(self.tablero._is_home_board_ready('B'))
+        self.assertFalse(self.tablero._is_home_board_ready('N'))
+
+        # 2. FALLA por Ficha en la Barra
+        self.tablero.__bar_blancas__.append(self.tablero.__puntos__[0].pop())
+        self.assertFalse(self.tablero._is_home_board_ready('B'))
+        self.tablero.__bar_blancas__ = [] # Limpieza
+
+        # 3. FALLA por Ficha Fuera de Casa (White: punto 17)
+        self.tablero.__puntos__[18].pop()
+        self._setup_checkers(17, 'B', 1)
+        self.assertFalse(self.tablero._is_home_board_ready('B'))
+        
+        # 4. FALLA por Ficha Fuera de Casa (Black: punto 6)
+        self.tablero.__puntos__[5].pop()
+        self._setup_checkers(6, 'N', 1)
+        self.assertFalse(self.tablero._is_home_board_ready('N'))
+
+        # 5. ESTADO LISTO (Pasa, simulando que todas las fichas están en el Home Board 18-23)
+        self.setUp() 
+        for i in range(0, 18):
+            self.tablero.__puntos__[i] = []
+        # Si las fichas restantes están en 18-23, debe pasar.
+        self.assertTrue(self.tablero._is_home_board_ready('B'))
+
+        # 6. ESTADO LISTO (Pasa, simulando que todas las fichas están en el Home Board 0-5)
+        self.setUp()
+        for i in range(6, 24):
+            self.tablero.__puntos__[i] = []
+        # Si las fichas restantes están en 0-5, debe pasar.
+        self.assertTrue(self.tablero._is_home_board_ready('N'))
+
+Cambios realizados:
+
+Utilice el setup_checkers() y el test_is_home_board_ready() , para hacere el test_get_piece_count() me guie nomas pero le hice un par de modificaciones debido a que fallaban los tests.
+
+Archivos utilizados:
+
+src/tests/test_tablero.py
+src/tests/test_backgammon.py

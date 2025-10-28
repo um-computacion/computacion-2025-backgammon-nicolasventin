@@ -5,6 +5,11 @@ from src.game.checker import Checker
 class TestTablero(unittest.TestCase):
     def setUp(self):
         self.tablero = Tablero()
+    
+    def _setup_checkers(self, point, color, count):
+        """Helper para configurar un punto con objetos Checker."""
+        from src.game.checker import Checker
+        self.tablero.__puntos__[point] = [Checker(color) for _ in range(count)]
 
     def test__turnos__(self):
         self.assertEqual(self.tablero.__turnos__, 0)
@@ -100,12 +105,60 @@ class TestTablero(unittest.TestCase):
     def test_mover_ficha_errores(self):
         with self.assertRaises(ValueError):
             self.tablero.mover_ficha(25, 23)
+        with self.assertRaises(ValueError):
+            self.tablero.mover_ficha(-2, 1)
         with self.assertRaises(Exception):
             self.tablero.mover_ficha(2, 3)
         with self.assertRaises(Exception):
             self.tablero.mover_ficha(24, 18)
         with self.assertRaises(Exception):
             self.tablero.mover_ficha(-1, 6)
+    
+    def test_get_piece_count(self):
+        """Verifica que el conteo total de fichas en el tablero y barra sea correcto."""
+        self.assertEqual(self.tablero.get_piece_count('B'), 15)
+        self.assertEqual(self.tablero.get_piece_count('N'), 15)
+        if self.tablero.__puntos__[0]:
+            self.tablero.__puntos__[0].pop()
+            self.assertEqual(self.tablero.get_piece_count('B'), 14)
+        self.setUp() 
+        removed_checker = None
+        while len(self.tablero.__puntos__[23]) > 1:
+             removed_checker = self.tablero.__puntos__[23].pop() 
+        hit_occurred = self.tablero.hit_opponent(23)
+        if removed_checker:
+             self.tablero.__puntos__[7].append(removed_checker)
+        self.assertTrue(hit_occurred)
+        self.assertEqual(len(self.tablero.__bar_negras__), 1)
+        self.assertEqual(self.tablero.get_piece_count('N'), 15)
+
+
+    def test_is_home_board_ready(self):
+        """Verifica la precondición de Bearing Off: todas las fichas en Home Board."""       
+        self.assertFalse(self.tablero._is_home_board_ready('B'))
+        self.assertFalse(self.tablero._is_home_board_ready('N'))
+
+        self.tablero.__bar_blancas__.append(self.tablero.__puntos__[0].pop())
+        self.assertFalse(self.tablero._is_home_board_ready('B'))
+        self.tablero.__bar_blancas__ = []
+
+        self.tablero.__puntos__[18].pop()
+        self._setup_checkers(17, 'B', 1)
+        self.assertFalse(self.tablero._is_home_board_ready('B'))
+        
+        self.tablero.__puntos__[5].pop()
+        self._setup_checkers(6, 'N', 1)
+        self.assertFalse(self.tablero._is_home_board_ready('N'))
+
+        self.setUp() 
+        for i in range(0, 18):
+            self.tablero.__puntos__[i] = []
+        self.assertTrue(self.tablero._is_home_board_ready('B'))
+
+        self.setUp()
+        for i in range(6, 24):
+            self.tablero.__puntos__[i] = []
+        self.assertTrue(self.tablero._is_home_board_ready('N'))   
 
 if __name__ == '__main__':
     unittest.main()
