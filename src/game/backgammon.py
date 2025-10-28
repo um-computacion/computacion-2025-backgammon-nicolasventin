@@ -29,8 +29,8 @@ class BackgammonGame:
     def validar_movimiento(self, start_point: int, end_point: int) -> bool:
         """Verifica si un movimiento de start_point a end_point es legal."""
         
-        if start_point < -1 or start_point > 24 or end_point < 0 or end_point > 23:
-             return False 
+        if start_point < -1 or start_point > 24 or end_point < -1 or end_point > 25:
+             return False
 
         player = self.obtener_jugador_actual()       
         player_color = player.__ficha__
@@ -38,31 +38,64 @@ class BackgammonGame:
 
         has_bar_checkers = (len(self.__board__.__bar_blancas__) > 0 and is_white) or \
                            (len(self.__board__.__bar_negras__) > 0 and not is_white)
+        
+        is_bearing_off_move = (is_white and end_point == -1) or (not is_white and end_point == 25)
+        is_bar_move = (is_white and start_point == 24) or (not is_white and start_point == -1)
+
+        if is_bearing_off_move:
+            if has_bar_checkers:
+                return False
+            if not self.__board__._is_home_board_ready(player_color):
+                return False
+
+            if is_white:
+                required_distance = start_point + 1
+            else:
+                required_distance = 24 - start_point
+
+            if required_distance in self.__dados_restantes__:
+                return True
+
+            available_dice = [d for d in self.__dados_restantes__ if d >= required_distance]
+            if not available_dice: 
+                return False
+
+            is_farthest = True
+            if is_white:
+                check_range = range(start_point + 1, 6)
+            else:
+                check_range = range(18, start_point)
+
+            for point_index in check_range:
+                point_list = self.__board__.__puntos__[point_index]
+                if point_list and point_list[0].get_color() == player_color:
+                    is_farthest = False
+                    break
+
+            if is_farthest:
+                return True
+
+            return False
+        
+        elif is_bar_move:
+            if not has_bar_checkers:
+                return False
+            if is_white:
+                required_distance = 24 - end_point 
+            else:
+                required_distance = end_point + 1
                            
-        if has_bar_checkers:
-            expected_start_point = 24 if is_white else -1
+        else:
+            if has_bar_checkers: 
+                return False
             
-            if start_point != expected_start_point:
+            if start_point == 24 or start_point == -1:
                 return False 
             
-            if is_white and not (18 <= end_point <= 23):
-                return False
-            if not is_white and not (1 <= end_point <= 6):
-                return False
-                
-        elif start_point == 24 or start_point == -1:
-            return False 
-        
-        if start_point >= 0 and start_point <= 23:
             start_list = self.__board__.__puntos__[start_point]
             if not start_list or start_list[0].get_color() != player_color:
                 return False 
-                    
-        if is_white and start_point == 24:
-            required_distance = 25 - end_point
-        elif not is_white and start_point == -1:
-            required_distance = end_point
-        else:
+                
             distance = end_point - start_point 
             if is_white and distance >= 0:
                 return False
@@ -83,23 +116,51 @@ class BackgammonGame:
     def ejecutar_movimiento(self, start_point: int, end_point: int):
         """Aplica el movimiento al tablero y consume el dado utilizado."""
         
+        player_color = self.obtener_jugador_actual().__ficha__
+        is_white = (player_color == 'B')
+        is_bearing_off_move = (is_white and end_point == -1) or (not is_white and end_point == 25)
+
         if self.validar_movimiento(start_point, end_point):
             
-            self.__board__.hit_opponent(end_point)
+            if not is_bearing_off_move:
+                self.__board__.hit_opponent(end_point)
             
             self.__board__.mover_ficha(start_point, end_point)
             
             if start_point == 24:
-                distance = 25 - end_point
+                distance = 24 - end_point
             elif start_point == -1:
-                distance = end_point
+                distance = end_point + 1
+            elif is_bearing_off_move:
+                if is_white: required_distance = start_point + 1
+                else: required_distance = 24 - start_point
+            
+                used_dice = required_distance
+                if required_distance not in self.__dados_restantes__:
+                     possible_dice = [d for d in self.__dados_restantes__ if d >= required_distance]
+                     if possible_dice:
+                         used_dice = min(possible_dice)
+                     else:
+                          raise Exception("Lógica de dados de Bear Off inconsistente.")
+                distance = used_dice
             else:
                 distance = abs(end_point - start_point)
-                
             try:
                 self.__dados_restantes__.remove(distance)
             except ValueError:
-                pass
+                if is_bearing_off_move:
+                     try:
+                        possible_dice = [d for d in self.__dados_restantes__ if d >= required_distance]
+                        if possible_dice:
+                            self.__dados_restantes__.remove(min(possible_dice))
+                        else: pass
+                     except ValueError: pass
+                else: pass
         
         else:
             raise ValueError("Movimiento inválido según las reglas del Backgammon.")
+        
+    def check_victory(self) -> bool:
+        """Verifica si el jugador actual ha ganado."""
+        player_color = self.obtener_jugador_actual().__ficha__
+        return self.__board__.get_piece_count(player_color) == 0
