@@ -150,13 +150,13 @@ class TestTablero(unittest.TestCase):
         self._setup_checkers(6, 'N', 1)
         self.assertFalse(self.tablero._is_home_board_ready('N'))
 
-        self.setUp() 
-        for i in range(0, 18):
+        self.setUp()
+        for i in range(6, 24): 
             self.tablero.__puntos__[i] = []
         self.assertTrue(self.tablero._is_home_board_ready('B'))
 
         self.setUp()
-        for i in range(6, 24):
+        for i in range(0, 18):
             self.tablero.__puntos__[i] = []
         self.assertTrue(self.tablero._is_home_board_ready('N'))   
 

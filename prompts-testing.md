@@ -335,3 +335,175 @@ Archivos utilizados:
 
 src/tests/test_tablero.py
 src/tests/test_backgammon.py
+
+# Prompt 4
+
+Modelo de IA:  gemini pro 2.5 flash
+
+Prompt Utilizado:
+
+(venv) ➜  computacion-2025-backgammon-nicolasventin git:(45-logica-bearing-off) ✗ python3 -m unittest tests/test_backgammon.py
+
+.E...F.F...
+
+======================================================================
+
+ERROR: test_ejecutar_movimiento_bear_off (tests.test_backgammon.TestBackgammonGame)
+
+Verifica que ejecutar_movimiento quite la ficha al hacer Bear Off.
+
+----------------------------------------------------------------------
+
+Traceback (most recent call last):
+
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 119, in test_ejecutar_movimiento_bear_off
+
+    self.game.ejecutar_movimiento(2, -1)
+
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/src/game/backgammon.py", line 161, in ejecutar_movimiento
+
+    raise ValueError("Movimiento inválido según las reglas del Backgammon.")
+
+ValueError: Movimiento inválido según las reglas del Backgammon.
+
+
+
+======================================================================
+
+FAIL: test_validar_movimiento_bear_off_dado_mayor_farthest (tests.test_backgammon.TestBackgammonGame)
+
+Verifica que se permita salir con dado mayor si es la ficha más lejana.
+
+----------------------------------------------------------------------
+
+Traceback (most recent call last):
+
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 88, in test_validar_movimiento_bear_off_dado_mayor_farthest
+
+    self.assertTrue(self.game.validar_movimiento(2, -1))
+
+AssertionError: False is not true
+
+
+
+======================================================================
+
+FAIL: test_validar_movimiento_bear_off_exacto (tests.test_backgammon.TestBackgammonGame)
+
+Verifica que se permita salir con dado exacto si está en Home Board.
+
+----------------------------------------------------------------------
+
+Traceback (most recent call last):
+
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 73, in test_validar_movimiento_bear_off_exacto
+
+    self.assertTrue(self.game.validar_movimiento(2, -1))
+
+AssertionError: False is not true
+
+
+
+----------------------------------------------------------------------
+
+Ran 11 tests in 0.001s
+
+
+
+FAILED (failures=2, errors=1)
+
+(venv) ➜  computacion-2025-backgammon-nicolasventin git:(45-logica-bearing-off) ✗ python3 -m unittest tests/test_backgammon.py
+
+.E...F.F...
+
+======================================================================
+
+ERROR: test_ejecutar_movimiento_bear_off (tests.test_backgammon.TestBackgammonGame)
+
+Verifica que ejecutar_movimiento quite la ficha al hacer Bear Off.
+
+----------------------------------------------------------------------
+
+Traceback (most recent call last):
+
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 127, in test_ejecutar_movimiento_bear_off
+
+    self.game.ejecutar_movimiento(2, -1)
+
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/src/game/backgammon.py", line 161, in ejecutar_movimiento
+
+    raise ValueError("Movimiento inválido según las reglas del Backgammon.")
+
+ValueError: Movimiento inválido según las reglas del Backgammon.
+
+
+
+======================================================================
+
+FAIL: test_validar_movimiento_bear_off_dado_mayor_lejana (tests.test_backgammon.TestBackgammonGame)
+
+Verifica que se permita salir con dado mayor si es la ficha más lejana.
+
+----------------------------------------------------------------------
+
+Traceback (most recent call last):
+
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 94, in test_validar_movimiento_bear_off_dado_mayor_lejana
+
+    self.assertTrue(self.game.validar_movimiento(2, -1))
+
+AssertionError: False is not true
+
+
+
+======================================================================
+
+FAIL: test_validar_movimiento_bear_off_exacto (tests.test_backgammon.TestBackgammonGame)
+
+Verifica que se permita salir con dado exacto si está en Home Board.
+
+----------------------------------------------------------------------
+
+Traceback (most recent call last):
+
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 75, in test_validar_movimiento_bear_off_exacto
+
+    self.assertTrue(self.game.validar_movimiento(2, -1))
+
+AssertionError: False is not true
+
+
+
+----------------------------------------------------------------------
+
+Ran 11 tests in 0.001s
+
+
+
+FAILED (failures=2, errors=1)
+
+No se realmente porque pueden estar fallando estos tests, podes verificar que esta mal?
+
+Respuesta:
+
+Este es un problema frustrante, porque tus tests demuestran que partes de tu lógica son correctas, pero siguen fallando.
+
+El test que pasa (test_validar_movimiento_bear_off_falla_si_no_home_board) demuestra que tu función self.__board__._is_home_board_ready(player_color) funciona correctamente. Detecta fichas fuera del home board y devuelve False como debe ser.
+
+Los tests que fallan (...exacto y ...dado_mayor_farthest) fallan porque _is_home_board_ready también está devolviendo False, a pesar de que tú crees que has limpiado el tablero.
+
+La única conclusión lógica es que el tablero no se está limpiando correctamente en la configuración de tus tests.
+
+El hecho de que _is_home_board_ready (que vive en Tablero) siga devolviendo False significa que debe estar leyendo el estado de otro lugar.
+
+Verifica que _is_home_board_ready está leyendo el estado de la barra y el tablero debería resolver el problema.
+
+Cambios realizados:
+
+Fui a buscar el problema en tabler y efectivamente el problema estaba en el método _is_home_board_ready que me equivoque y estaba puesto al revez. 
+
+En el archivo 
+src/game/tablero.py
+src/game/backgammon.py
+tests/test_backgammon.py
+tests/test_tablero.py

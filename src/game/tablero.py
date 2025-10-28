@@ -85,9 +85,9 @@ class Tablero:
         if color == 'N' and len(self.__bar_negras__) > 0:
             return False
         if color == 'B':
-            check_range = range(0, 18)
+            check_range = range(6, 24)          
         else: 
-            check_range = range(6, 24)
+            check_range = range(0, 18)
         for point_index in check_range:
             point_list = self.__puntos__[point_index]
             if point_list and point_list[0].get_color() == color:
