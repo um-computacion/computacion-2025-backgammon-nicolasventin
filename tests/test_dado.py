@@ -1,4 +1,4 @@
-from src.game.dado import get_dice
+from src.game.dado import Dice
 from unittest import TestCase
 from unittest.mock import patch
 import unittest
@@ -10,18 +10,18 @@ class TestDice(TestCase):
     # def test_method(self, randint_patched):
     #     ...
 
-    @patch('random.randint', side_effect=[5, 2])
+    @patch("random.randint", side_effect=[5, 2])
     def test_simple(self, randint_patched):
-        dice = get_dice()
+        dice = Dice.get_dice()
         self.assertEqual(len(dice), 2)
         self.assertEqual(dice[0], 5)
         self.assertEqual(dice[1], 2)
         self.assertTrue(randint_patched.called)
         self.assertEqual(randint_patched.call_count, 2)
 
-    @patch('random.randint', return_value=1)
+    @patch("random.randint", return_value=1)
     def test_complex(self, randint_patched):
-        dice = get_dice()
+        dice = Dice.get_dice()
         self.assertEqual(len(dice), 4)
         self.assertEqual(dice[0], 1)
         self.assertEqual(dice[1], 1)
@@ -30,25 +30,24 @@ class TestDice(TestCase):
         self.assertTrue(randint_patched.called)
         self.assertEqual(randint_patched.call_count, 2)
 
-    @patch('random.randint', side_effect=Exception("error!!"))
+    @patch("random.randint", side_effect=Exception("error!!"))
     def test_error(self, randint_patched):
-        dice = get_dice()
+        dice = Dice.get_dice()
         self.assertEqual(len(dice), 0)
         self.assertTrue(randint_patched.called)
         self.assertEqual(randint_patched.call_count, 1)
 
-
     def test_double(self):
-        with patch('random.randint', side_effect=[5, 2]) as randint_patched:
-            dice = get_dice()
+        with patch("random.randint", side_effect=[5, 2]) as randint_patched:
+            dice = Dice.get_dice()
             self.assertEqual(len(dice), 2)
             self.assertEqual(dice[0], 5)
             self.assertEqual(dice[1], 2)
             self.assertTrue(randint_patched.called)
             self.assertEqual(randint_patched.call_count, 2)
 
-        with patch('random.randint', return_value=1) as randint_patched:
-            dice = get_dice()
+        with patch("random.randint", return_value=1) as randint_patched:
+            dice = Dice.get_dice()
             self.assertEqual(len(dice), 4)
             self.assertEqual(dice[0], 1)
             self.assertEqual(dice[1], 1)
@@ -57,5 +56,6 @@ class TestDice(TestCase):
             self.assertTrue(randint_patched.called)
             self.assertEqual(randint_patched.call_count, 2)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

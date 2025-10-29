@@ -1,8 +1,9 @@
 import unittest
 from src.game.jugador import Jugador
 
+
 class TestJugador(unittest.TestCase):
-    
+
     def test_crear_jugador(self):
         jugador = Jugador("Diego", "Blancas")
         self.assertEqual(jugador.__nombre__, "Diego")
@@ -13,5 +14,6 @@ class TestJugador(unittest.TestCase):
         resultado = jugador.obtener_info()
         self.assertEqual(resultado, "Camila (Negras)")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
