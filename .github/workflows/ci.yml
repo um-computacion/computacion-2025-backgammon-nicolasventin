@@ -33,7 +33,7 @@ jobs:
           coverage report -m > coverage_report.txt
       - name: Run Pylint and generate report
         run: |
-          pylint --rcfile=.pylintrc main.py test.py > pylint_report.txt || true
+          pylint --rcfile=.pylintrc src/game tests > pylint_report.txt || true
       - name: Generate reports file
         run: |
           cat << 'EOF' > generate_reports.py
