@@ -10,8 +10,8 @@ class BackgammonGame:
         self.__board__ = Tablero()
         self.__dice__ = Dice()
         self.__players__ = [
-            Jugador(name_p1, "B"),
-            Jugador(name_p2, "N")
+            Jugador(name_p1, "W"),
+            Jugador(name_p2, "B")
         ]
         self.__turno__ = 0
         self.__dados_restantes__ = []
@@ -34,7 +34,7 @@ class BackgammonGame:
 
         player = self.obtener_jugador_actual()       
         player_color = player.__ficha__
-        is_white = (player_color == 'B') 
+        is_white = (player_color == 'W') 
 
         has_bar_checkers = (len(self.__board__.__bar_blancas__) > 0 and is_white) or \
                            (len(self.__board__.__bar_negras__) > 0 and not is_white)
@@ -108,7 +108,7 @@ class BackgammonGame:
         
         end_list = self.__board__.__puntos__[end_point]
         if end_list:
-            opponent_color = 'N' if is_white else 'B'
+            opponent_color = 'B' if is_white else 'W'
             if end_list[0].get_color() == opponent_color and len(end_list) >= 2:
                 return False 
         return True    
@@ -117,13 +117,15 @@ class BackgammonGame:
         """Aplica el movimiento al tablero y consume el dado utilizado."""
         
         player_color = self.obtener_jugador_actual().__ficha__
-        is_white = (player_color == 'B')
+        is_white = (player_color == 'W')
         is_bearing_off_move = (is_white and end_point == -1) or (not is_white and end_point == 25)
 
         if self.validar_movimiento(start_point, end_point):
             
             if not is_bearing_off_move:
-                self.__board__.hit_opponent(end_point)
+                end_list = self.__board__.__puntos__[end_point]
+                if end_list and end_list[0].get_color() != player_color:
+                    self.__board__.hit_opponent(end_point)
             
             self.__board__.mover_ficha(start_point, end_point)
             

@@ -13,15 +13,15 @@ class Tablero:
         def create_checkers(color, count):
             return [Checker(color) for _ in range(count)]
 
+        self.__puntos__[23].extend(create_checkers('W', 2))
+        self.__puntos__[12].extend(create_checkers('W', 5))
+        self.__puntos__[7].extend(create_checkers('W', 3))
+        self.__puntos__[5].extend(create_checkers('W', 5))
+
         self.__puntos__[0].extend(create_checkers('B', 2))
         self.__puntos__[11].extend(create_checkers('B', 5))
         self.__puntos__[16].extend(create_checkers('B', 3))
         self.__puntos__[18].extend(create_checkers('B', 5))
-
-        self.__puntos__[23].extend(create_checkers('N', 2))
-        self.__puntos__[12].extend(create_checkers('N', 5))
-        self.__puntos__[7].extend(create_checkers('N', 3))
-        self.__puntos__[5].extend(create_checkers('N', 5))
 
     def draw(self):
         """Devuelve la grilla del tablero (matriz 10x12) como estructura de datos."""
@@ -75,16 +75,17 @@ class Tablero:
             start_list = self.__puntos__[start_point]
             if not start_list: raise Exception("No hay fichas para mover en el punto de inicio.")
             checker_to_move = start_list.pop()
-        self.__puntos__[end_point].append(checker_to_move)
+        if end_point != -1 and end_point != 25:
+            self.__puntos__[end_point].append(checker_to_move)
 
     def _is_home_board_ready(self, color: str) -> bool:
         """Verifica si todas las fichas de un color están en el cuadrante de inicio (Home Board)."""
         
-        if color == 'B' and len(self.__bar_blancas__) > 0:
+        if color == 'W' and len(self.__bar_blancas__) > 0:
             return False
-        if color == 'N' and len(self.__bar_negras__) > 0:
+        if color == 'B' and len(self.__bar_negras__) > 0:
             return False
-        if color == 'B':
+        if color == 'W':
             check_range = range(6, 24)          
         else: 
             check_range = range(0, 18)
@@ -98,7 +99,7 @@ class Tablero:
         """Retorna el número total de fichas de un color que aún están en el tablero (puntos + barra)."""
         count = 0
         
-        if color == 'B':
+        if color == 'W':
             count += len(self.__bar_blancas__)
         else:
             count += len(self.__bar_negras__)
@@ -116,9 +117,9 @@ class Tablero:
         if len(point_list) == 1:
             hit_checker = point_list.pop()
             hit_checker.comida = True
-            if hit_checker.get_color() == 'B':
+            if hit_checker.get_color() == 'W':
                 self.__bar_blancas__.append(hit_checker)
-            elif hit_checker.get_color() == 'N':
+            elif hit_checker.get_color() == 'B':
                 self.__bar_negras__.append(hit_checker)
             
             return True
@@ -132,7 +133,7 @@ class Tablero:
         if count == 0:
             return (None, 0)       
         owner_color = point_list[0].get_color()
-        owner_str = 'white' if owner_color == 'B' else 'black'
+        owner_str = 'white' if owner_color == 'W' else 'black'
 
         return (owner_str, count)
     
