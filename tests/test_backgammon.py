@@ -1,27 +1,50 @@
+"""
+Pruebas unitarias para la clase BackgammonGame.
+"""
+
 import unittest
 from src.game.backgammon import BackgammonGame
 from src.game.checker import Checker
 
 
 class TestBackgammonGame(unittest.TestCase):
+    """Conjunto de pruebas para la clase BackgammonGame."""
+
     def setUp(self):
+        """
+        Configura un entorno de prueba nuevo antes de cada método de test.
+        Inicializa una instancia de BackgammonGame y asigna dados fijos para
+        pruebas predecibles.
+        """
         self.game = BackgammonGame()
         self.game.__dados_restantes__ = [3, 5]
 
     def _setup_checkers(self, point, color, count):
+        """
+        Método auxiliar para colocar un número específico de fichas de un
+        color en un punto del tablero para configurar escenarios de prueba.
+        """
         self.game.__board__.__puntos__[point] = [Checker(color) for _ in range(count)]
 
     def test_turno_inicial(self):
+        """Verifica que el juego comience en el turno 0."""
         self.assertEqual(self.game.__turno__, 0)
 
     def test_jugadores_iniciales(self):
+        """
+        Verifica que el juego se inicialice con dos jugadores
+        y que sus colores (fichas) sean 'W' (Blancas) y 'B' (Negras).
+        """
         jugadores = self.game.__players__
         self.assertEqual(len(jugadores), 2)
         self.assertEqual(jugadores[0].__ficha__, "W")
         self.assertEqual(jugadores[1].__ficha__, "B")
 
     def test_validar_movimiento_bloqueado(self):
-
+        """
+        Prueba que validar_movimiento devuelva False si el punto de destino
+        está bloqueado por dos o más fichas del oponente.
+        """
         self._setup_checkers(18, "B", 2)
         self._setup_checkers(21, "W", 1)
         self.game.__dados_restantes__ = [3]
@@ -36,7 +59,10 @@ class TestBackgammonGame(unittest.TestCase):
         self.assertFalse(self.game.validar_movimiento(3, 6))
 
     def test_validar_movimiento_hit_valido(self):
-
+        """
+        Prueba que validar_movimiento devuelva True si el punto de destino
+        contiene exactamente una ficha oponente (un 'blot').
+        """
         self._setup_checkers(15, "B", 1)
         self._setup_checkers(18, "W", 1)
         self.game.__dados_restantes__ = [3]
@@ -51,7 +77,11 @@ class TestBackgammonGame(unittest.TestCase):
         self.assertTrue(self.game.validar_movimiento(6, 9))
 
     def test_validar_movimiento_basico_fallos(self):
-
+        """
+        Prueba validaciones de movimientos básicos incorrectos, como
+        mover desde un punto vacío, intentar moverse fuera del tablero
+        ilegalmente, o moverse en la dirección incorrecta (hacia atrás).
+        """
         self.game.__dados_restantes__ = [5]
 
         self.game.__board__.__puntos__[1] = []
