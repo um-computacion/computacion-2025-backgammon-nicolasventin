@@ -1,7 +1,11 @@
+"""
+Módulo principal del juego Backgammon.
+Maneja la lógica de la partida, turnos y movimientos.
+"""
+
 from src.game.tablero import Tablero
 from src.game.jugador import Jugador
 from src.game.dado import Dice
-from src.game.checker import Checker
 
 
 class BackgammonGame:
@@ -49,7 +53,7 @@ class BackgammonGame:
         if is_bearing_off_move:
             if has_bar_checkers:
                 return False
-            if not self.__board__._is_home_board_ready(player_color):
+            if not self.__board__.is_home_board_ready(player_color):
                 return False
 
             if is_white:
@@ -83,7 +87,7 @@ class BackgammonGame:
 
             return False
 
-        elif is_bar_move:
+        if is_bar_move:
             if not has_bar_checkers:
                 return False
             if is_white:
@@ -95,7 +99,7 @@ class BackgammonGame:
             if has_bar_checkers:
                 return False
 
-            if start_point == 24 or start_point == -1:
+            if start_point in (24, -1):
                 return False
 
             start_list = self.__board__.__puntos__[start_point]
@@ -155,7 +159,7 @@ class BackgammonGame:
                     if possible_dice:
                         used_dice = min(possible_dice)
                     else:
-                        raise Exception("Lógica de dados de Bear Off inconsistente.")
+                        raise ValueError("Lógica de dados de Bear Off inconsistente.")
                 distance = used_dice
             else:
                 distance = abs(end_point - start_point)

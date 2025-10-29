@@ -1,3 +1,7 @@
+"""
+Módulo que define la clase Tablero y su lógica interna.
+"""
+
 from .checker import Checker
 
 
@@ -32,10 +36,10 @@ class Tablero:
 
         for c in range(12):
             point = 11 - c
-            owner, n = self._owner_and_count_from_puntos(point)
+            owner, n = self.owner_and_count_from_puntos(point)
             if not owner or n == 0:
                 continue
-            piece = self._piece(owner)
+            piece = self.piece(owner)
             if n <= 5:
                 for r in range(n):
                     grid[r][c] = piece
@@ -46,10 +50,10 @@ class Tablero:
 
         for c in range(12):
             point = 12 + c
-            owner, n = self._owner_and_count_from_puntos(point)
+            owner, n = self.owner_and_count_from_puntos(point)
             if not owner or n == 0:
                 continue
-            piece = self._piece(owner)
+            piece = self.piece(owner)
             if n <= 5:
                 for k in range(n):
                     grid[9 - k][c] = piece
@@ -67,23 +71,23 @@ class Tablero:
         checker_to_move = None
         if start_point == 24:
             if not self.__bar_blancas__:
-                raise Exception("No hay fichas blancas en la barra.")
+                raise ValueError("No hay fichas blancas en la barra.")
             checker_to_move = self.__bar_blancas__.pop()
             checker_to_move.comida = False
         elif start_point == -1:
             if not self.__bar_negras__:
-                raise Exception("No hay fichas negras en la barra.")
+                raise ValueError("No hay fichas negras en la barra.")
             checker_to_move = self.__bar_negras__.pop()
             checker_to_move.comida = False
         else:
             start_list = self.__puntos__[start_point]
             if not start_list:
-                raise Exception("No hay fichas para mover en el punto de inicio.")
+                raise ValueError("No hay fichas para mover en el punto de inicio.")
             checker_to_move = start_list.pop()
-        if end_point != -1 and end_point != 25:
+        if end_point not in (-1, 25):
             self.__puntos__[end_point].append(checker_to_move)
 
-    def _is_home_board_ready(self, color: str) -> bool:
+    def is_home_board_ready(self, color: str) -> bool:
         """Verifica si todas las fichas de un color están en el cuadrante de inicio (Home Board)."""
 
         if color == "W" and len(self.__bar_blancas__) > 0:
@@ -101,7 +105,10 @@ class Tablero:
         return True
 
     def get_piece_count(self, color: str) -> int:
-        """Retorna el número total de fichas de un color que aún están en el tablero (puntos + barra)."""
+        """
+        Retorna el número total de fichas de un color que 
+        aún están en el tablero (puntos + barra).
+        """
         count = 0
 
         if color == "W":
@@ -131,7 +138,7 @@ class Tablero:
 
         return False
 
-    def _owner_and_count_from_puntos(self, idx: int):
+    def owner_and_count_from_puntos(self, idx: int):
         """Helper: Retorna el dueño ('white'/'black') y la cantidad de fichas en un punto."""
         point_list = self.__puntos__[idx]
         count = len(point_list)
@@ -142,6 +149,6 @@ class Tablero:
 
         return (owner_str, count)
 
-    def _piece(self, owner: str) -> str:
+    def piece(self, owner: str) -> str:
         """Helper: Retorna el símbolo 'W' o 'B' para la representación de datos (no visual)."""
         return "W" if owner == "white" else "B"

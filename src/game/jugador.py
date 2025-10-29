@@ -1,6 +1,10 @@
+"""
+Módulo que define la clase Jugador.
+"""
 class Jugador:
-    """Clase que representa a un jugador de Backgammon."""
-
+    """
+    Clase que representa a un jugador de Backgammon.
+    """
     def __init__(self, nombre, ficha):
         """Inicializa al jugador con nombre y color de ficha."""
         self.__nombre__ = nombre
