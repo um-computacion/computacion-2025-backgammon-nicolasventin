@@ -46,7 +46,7 @@ class Tablero:
             if count == 0:
                 return (None, 0)
             return (point_list[0].color, count)
-        return (None, 0) # Índices fuera de rango (como -1 o 24) no tienen info
+        return (None, 0)  # Índices fuera de rango (como -1 o 24) no tienen info
 
     def is_point_blocked(self, point_index: int, player_color: str) -> bool:
         """Verifica si el punto está bloqueado por el oponente."""
@@ -128,7 +128,7 @@ class Tablero:
             if not start_list:
                 raise ValueError("No hay fichas para mover en el punto de inicio.")
             checker_to_move = start_list.pop()
-        
+
         checker_to_move.comida = False
 
         if end_point not in (-1, 25):

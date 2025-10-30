@@ -10,6 +10,7 @@ class Dice:
     Clase de utilidad para la lógica de tirada de dados.
     Provee métodos estáticos para obtener resultados de dados.
     """
+
     @staticmethod
     def get_dice():
         """
