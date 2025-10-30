@@ -94,9 +94,7 @@ class BackgammonGame:
         if required_distance in self.__dados_restantes__:
             return True
 
-        available_dice = [
-            d for d in self.__dados_restantes__ if d >= required_distance
-        ]
+        available_dice = [d for d in self.__dados_restantes__ if d >= required_distance]
         if not available_dice:
             return False
 
@@ -117,9 +115,7 @@ class BackgammonGame:
         else:
             required_distance = end_point + 1
 
-        return self._validar_punto_llegada(
-            end_point, required_distance, player_color
-        )
+        return self._validar_punto_llegada(end_point, required_distance, player_color)
 
     def _validar_normal(
         self, start_point: int, end_point: int, player: Jugador
@@ -140,9 +136,7 @@ class BackgammonGame:
             return False
 
         required_distance = abs(distance)
-        return self._validar_punto_llegada(
-            end_point, required_distance, player_color
-        )
+        return self._validar_punto_llegada(end_point, required_distance, player_color)
 
     def _validar_punto_llegada(
         self, end_point: int, required_distance: int, player_color: str
@@ -153,7 +147,7 @@ class BackgammonGame:
 
         if self.__board__.is_point_blocked(end_point, player_color):
             return False
-        
+
         return True
 
     def ejecutar_movimiento(self, start_point: int, end_point: int):
@@ -163,14 +157,10 @@ class BackgammonGame:
 
         clave_estrategia = self._get_strategy_key(start_point, end_point)
 
-        self._ejecutar_movimiento_tablero(
-            start_point, end_point, clave_estrategia
-        )
+        self._ejecutar_movimiento_tablero(start_point, end_point, clave_estrategia)
 
-        self.usar_dado_para_movimiento(
-            start_point, end_point, clave_estrategia
-        )
-    
+        self.usar_dado_para_movimiento(start_point, end_point, clave_estrategia)
+
     def _ejecutar_movimiento_tablero(
         self, start_point: int, end_point: int, clave_estrategia: str
     ):
@@ -191,7 +181,7 @@ class BackgammonGame:
         is_white = self.obtener_jugador_actual().is_white()
 
         required_distance = 0
-        is_bearing_off_move = (clave_estrategia == "bear_off")
+        is_bearing_off_move = clave_estrategia == "bear_off"
 
         if clave_estrategia == "bar":
             required_distance = (24 - end_point) if is_white else (end_point + 1)

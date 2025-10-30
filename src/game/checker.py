@@ -1,6 +1,8 @@
 """
 Módulo que define la clase Checker (ficha).
 """
+
+
 class Checker:
     """Representa una ficha individual de Backgammon."""
 
