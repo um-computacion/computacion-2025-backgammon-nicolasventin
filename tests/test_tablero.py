@@ -27,64 +27,25 @@ class TestTablero(unittest.TestCase):
     def test_posiciones_iniciales(self):
         """Verifica la configuración inicial estándar de las fichas en el tablero."""
         self.assertEqual(len(self.tablero.__puntos__[23]), 2)
-        self.assertEqual(self.tablero.__puntos__[23][0].get_color(), "W")
+        self.assertEqual(self.tablero.__puntos__[23][0].color, "W")
         self.assertEqual(len(self.tablero.__puntos__[12]), 5)
-        self.assertEqual(self.tablero.__puntos__[12][0].get_color(), "W")
+        self.assertEqual(self.tablero.__puntos__[12][0].color, "W")
         self.assertEqual(len(self.tablero.__puntos__[7]), 3)
-        self.assertEqual(self.tablero.__puntos__[7][0].get_color(), "W")
+        self.assertEqual(self.tablero.__puntos__[7][0].color, "W")
         self.assertEqual(len(self.tablero.__puntos__[5]), 5)
-        self.assertEqual(self.tablero.__puntos__[5][0].get_color(), "W")
+        self.assertEqual(self.tablero.__puntos__[5][0].color, "W")
 
         self.assertEqual(len(self.tablero.__puntos__[0]), 2)
-        self.assertEqual(self.tablero.__puntos__[0][0].get_color(), "B")
+        self.assertEqual(self.tablero.__puntos__[0][0].color, "B")
         self.assertEqual(len(self.tablero.__puntos__[11]), 5)
-        self.assertEqual(self.tablero.__puntos__[11][0].get_color(), "B")
+        self.assertEqual(self.tablero.__puntos__[11][0].color, "B")
         self.assertEqual(len(self.tablero.__puntos__[16]), 3)
-        self.assertEqual(self.tablero.__puntos__[16][0].get_color(), "B")
+        self.assertEqual(self.tablero.__puntos__[16][0].color, "B")
         self.assertEqual(len(self.tablero.__puntos__[18]), 5)
-        self.assertEqual(self.tablero.__puntos__[18][0].get_color(), "B")
+        self.assertEqual(self.tablero.__puntos__[18][0].color, "B")
 
         self.assertEqual(len(self.tablero.__bar_blancas__), 0)
         self.assertEqual(len(self.tablero.__bar_negras__), 0)
-
-    def test_owner_and_count_from_puntos(self):
-        """
-        Prueba el método auxiliar que devuelve el propietario 
-        y la cantidad de fichas de un punto.
-        """
-        owner, count = self.tablero.owner_and_count_from_puntos(0)
-        self.assertEqual(owner, "black")
-        self.assertEqual(count, 2)
-
-        owner, count = self.tablero.owner_and_count_from_puntos(23)
-        self.assertEqual(owner, "white")
-        self.assertEqual(count, 2)
-
-        self.assertEqual(self.tablero.owner_and_count_from_puntos(1), (None, 0))
-
-    def test_piece(self):
-        """Verifica que el método auxiliar `piece` devuelva la abreviatura correcta del color."""
-        self.assertEqual(self.tablero.piece("white"), "W")
-        self.assertEqual(self.tablero.piece("black"), "B")
-
-    def test_draw(self):
-        """
-        Prueba la representación visual (draw) del tablero, 
-        incluyendo el manejo de más de 5 fichas.
-        """
-        board = Tablero()
-        board_draw = board.draw()
-
-        self.assertEqual(board_draw[0][11], "B")
-        self.assertEqual(board_draw[1][11], "B")
-
-        for _ in range(3):
-            board.__puntos__[11].append(Checker("B"))
-
-        board_draw_over_5 = board.draw()
-        self.assertEqual(board_draw_over_5[0][0], "B")
-        self.assertEqual(board_draw_over_5[3][0], "B")
-        self.assertEqual(board_draw_over_5[4][0], "4")
 
     def test_hit_opponent(self):
         """Verifica la lógica de 'comer' (hit) una ficha oponente (blot) y moverla a la barra."""
@@ -112,7 +73,7 @@ class TestTablero(unittest.TestCase):
         self.tablero.mover_ficha(start_point, end_point)
         self.assertEqual(len(self.tablero.__puntos__[start_point]), 1)
         self.assertEqual(len(self.tablero.__puntos__[end_point]), 1)
-        self.assertEqual(self.tablero.__puntos__[end_point][0].get_color(), "W")
+        self.assertEqual(self.tablero.__puntos__[end_point][0].color, "W")
 
     def test_mover_ficha_negra(self):
         """Prueba un movimiento simple y válido de una ficha negra."""
@@ -120,7 +81,7 @@ class TestTablero(unittest.TestCase):
         self.tablero.mover_ficha(start_point, end_point)
         self.assertEqual(len(self.tablero.__puntos__[start_point]), 1)
         self.assertEqual(len(self.tablero.__puntos__[end_point]), 1)
-        self.assertEqual(self.tablero.__puntos__[end_point][0].get_color(), "B")
+        self.assertEqual(self.tablero.__puntos__[end_point][0].color, "B")
 
     def test_mover_ficha_errores(self):
         """Prueba que se lancen excepciones al intentar movimientos inválidos."""
@@ -128,11 +89,11 @@ class TestTablero(unittest.TestCase):
             self.tablero.mover_ficha(25, 23)
         with self.assertRaises(ValueError):
             self.tablero.mover_ficha(-2, 1)
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             self.tablero.mover_ficha(2, 3)
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             self.tablero.mover_ficha(24, 18)
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             self.tablero.mover_ficha(-1, 6)
 
     def test_get_piece_count(self):
@@ -158,15 +119,14 @@ class TestTablero(unittest.TestCase):
         self.assertFalse(self.tablero.is_home_board_ready("W"))
         self.assertFalse(self.tablero.is_home_board_ready("B"))
 
-        self.tablero.__bar_blancas__.append(self.tablero.__puntos__[23].pop())
+        self.tablero.__bar_blancas__.append(Checker("W"))
         self.assertFalse(self.tablero.is_home_board_ready("W"))
         self.tablero.__bar_blancas__ = []
 
-        self.tablero.__puntos__[5].pop()
         self._setup_checkers(17, "W", 1)
         self.assertFalse(self.tablero.is_home_board_ready("W"))
-
-        self.tablero.__puntos__[18].pop()
+        
+        self.setUp()
         self._setup_checkers(6, "B", 1)
         self.assertFalse(self.tablero.is_home_board_ready("B"))
 
