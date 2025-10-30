@@ -19,6 +19,12 @@ class BackgammonGame:
         self.__turno__ = 0
         self.__dados_restantes__ = []
 
+        self.__estrategias_validacion__ = {
+            "bear_off": self._validar_bear_off,
+            "bar": self._validar_desde_barra,
+            "normal": self._validar_normal,
+        }
+
     def obtener_jugador_actual(self):
         """Retorna el objeto Jugador cuyo turno es actualmente."""
         player_index = self.__turno__ % 2
@@ -29,163 +35,190 @@ class BackgammonGame:
         self.__dados_restantes__ = list(Dice.get_dice())
         return self.__dados_restantes__
 
-    def validar_movimiento(self, start_point: int, end_point: int) -> bool:
-        """Verifica si un movimiento de start_point a end_point es legal."""
+    def _get_strategy_key(self, start_point: int, end_point: int) -> str:
+        """
+        Retorna la clave para el diccionario de estrategias.
+        """
+        player = self.obtener_jugador_actual()
+        is_white = player.is_white()
 
+        is_bearing_off_move = (is_white and end_point == -1) or (
+            not is_white and end_point == 25
+        )
+        if is_bearing_off_move:
+            return "bear_off"
+
+        is_bar_move = (is_white and start_point == 24) or (
+            not is_white and start_point == -1
+        )
+        if is_bar_move:
+            return "bar"
+
+        return "normal"
+
+    def validar_movimiento(self, start_point: int, end_point: int) -> bool:
+        """
+        Verifica si un movimiento es legal.
+        """
         if start_point < -1 or start_point > 24 or end_point < -1 or end_point > 25:
             return False
 
         player = self.obtener_jugador_actual()
-        player_color = player.__ficha__
-        is_white = player_color == "W"
 
-        has_bar_checkers = (len(self.__board__.__bar_blancas__) > 0 and is_white) or (
-            len(self.__board__.__bar_negras__) > 0 and not is_white
-        )
+        clave_estrategia = self._get_strategy_key(start_point, end_point)
 
-        is_bearing_off_move = (is_white and end_point == -1) or (
-            not is_white and end_point == 25
-        )
-        is_bar_move = (is_white and start_point == 24) or (
-            not is_white and start_point == -1
-        )
-
-        if is_bearing_off_move:
-            if has_bar_checkers:
-                return False
-            if not self.__board__.is_home_board_ready(player_color):
-                return False
-
-            if is_white:
-                required_distance = start_point + 1
-            else:
-                required_distance = 24 - start_point
-
-            if required_distance in self.__dados_restantes__:
-                return True
-
-            available_dice = [
-                d for d in self.__dados_restantes__ if d >= required_distance
-            ]
-            if not available_dice:
-                return False
-
-            is_farthest = True
-            if is_white:
-                check_range = range(start_point + 1, 6)
-            else:
-                check_range = range(18, start_point)
-
-            for point_index in check_range:
-                point_list = self.__board__.__puntos__[point_index]
-                if point_list and point_list[0].get_color() == player_color:
-                    is_farthest = False
-                    break
-
-            if is_farthest:
-                return True
-
+        if clave_estrategia not in self.__estrategias_validacion__:
             return False
 
-        if is_bar_move:
-            if not has_bar_checkers:
-                return False
-            if is_white:
-                required_distance = 24 - end_point
-            else:
-                required_distance = end_point + 1
+        funcion_validadora = self.__estrategias_validacion__[clave_estrategia]
 
+        return funcion_validadora(start_point, end_point, player)
+
+    def _validar_bear_off(
+        self, start_point: int, end_point: int, player: Jugador
+    ) -> bool:
+        """Valida ÚNICAMENTE un movimiento de 'bear off'."""
+        player_color = player.ficha
+        is_white = player.is_white()
+
+        if self.__board__.get_bar_count(player_color) > 0:
+            return False
+        if not self.__board__.is_home_board_ready(player_color):
+            return False
+
+        if is_white:
+            required_distance = start_point + 1
         else:
-            if has_bar_checkers:
-                return False
+            required_distance = 24 - start_point
 
-            if start_point in (24, -1):
-                return False
+        if required_distance in self.__dados_restantes__:
+            return True
 
-            start_list = self.__board__.__puntos__[start_point]
-            if not start_list or start_list[0].get_color() != player_color:
-                return False
+        available_dice = [
+            d for d in self.__dados_restantes__ if d >= required_distance
+        ]
+        if not available_dice:
+            return False
 
-            distance = end_point - start_point
-            if is_white and distance >= 0:
-                return False
-            if not is_white and distance <= 0:
-                return False
-            required_distance = abs(distance)
+        return self.__board__.is_point_farthest(start_point, player_color)
 
+    def _validar_desde_barra(
+        self, start_point: int, end_point: int, player: Jugador
+    ) -> bool:
+        """Valida ÚNICAMENTE un movimiento desde la barra."""
+        player_color = player.ficha
+        is_white = player.is_white()
+
+        if self.__board__.get_bar_count(player_color) == 0:
+            return False
+
+        if is_white:
+            required_distance = 24 - end_point
+        else:
+            required_distance = end_point + 1
+
+        return self._validar_punto_llegada(
+            end_point, required_distance, player_color
+        )
+
+    def _validar_normal(
+        self, start_point: int, end_point: int, player: Jugador
+    ) -> bool:
+        """Valida un movimiento normal en el tablero."""
+        player_color = player.ficha
+        is_white = player.is_white()
+
+        if self.__board__.get_bar_count(player_color) > 0:
+            return False
+
+        start_color, start_count = self.__board__.get_point_info(start_point)
+        if start_color != player_color or start_count == 0:
+            return False
+
+        distance = end_point - start_point
+        if (is_white and distance >= 0) or (not is_white and distance <= 0):
+            return False
+
+        required_distance = abs(distance)
+        return self._validar_punto_llegada(
+            end_point, required_distance, player_color
+        )
+
+    def _validar_punto_llegada(
+        self, end_point: int, required_distance: int, player_color: str
+    ) -> bool:
+        """Valida el dado y el punto de llegada (común a mov. normal y bar)."""
         if required_distance not in self.__dados_restantes__:
             return False
 
-        end_list = self.__board__.__puntos__[end_point]
-        if end_list:
-            opponent_color = "B" if is_white else "W"
-            if end_list[0].get_color() == opponent_color and len(end_list) >= 2:
-                return False
+        if self.__board__.is_point_blocked(end_point, player_color):
+            return False
+        
         return True
 
     def ejecutar_movimiento(self, start_point: int, end_point: int):
-        """Aplica el movimiento al tablero y consume el dado utilizado."""
+        """Aplica el movimiento al tablero y usa el dado utilizado."""
+        if not self.validar_movimiento(start_point, end_point):
+            raise ValueError("Movimiento inválido según las reglas del Backgammon.")
 
-        player_color = self.obtener_jugador_actual().__ficha__
-        is_white = player_color == "W"
-        is_bearing_off_move = (is_white and end_point == -1) or (
-            not is_white and end_point == 25
+        clave_estrategia = self._get_strategy_key(start_point, end_point)
+
+        self._ejecutar_movimiento_tablero(
+            start_point, end_point, clave_estrategia
         )
 
-        if self.validar_movimiento(start_point, end_point):
+        self.usar_dado_para_movimiento(
+            start_point, end_point, clave_estrategia
+        )
+    
+    def _ejecutar_movimiento_tablero(
+        self, start_point: int, end_point: int, clave_estrategia: str
+    ):
+        """Ejecuta el 'hit' (si aplica) y mueve la ficha en el tablero."""
+        player_color = self.obtener_jugador_actual().ficha
 
-            if not is_bearing_off_move:
-                end_list = self.__board__.__puntos__[end_point]
-                if end_list and end_list[0].get_color() != player_color:
-                    self.__board__.hit_opponent(end_point)
+        if clave_estrategia != "bear_off":
+            end_color, _ = self.__board__.get_point_info(end_point)
+            if end_color is not None and end_color != player_color:
+                self.__board__.hit_opponent(end_point)
 
-            self.__board__.mover_ficha(start_point, end_point)
+        self.__board__.mover_ficha(start_point, end_point)
 
-            if start_point == 24:
-                distance = 24 - end_point
-            elif start_point == -1:
-                distance = end_point + 1
-            elif is_bearing_off_move:
-                if is_white:
-                    required_distance = start_point + 1
-                else:
-                    required_distance = 24 - start_point
+    def usar_dado_para_movimiento(
+        self, start_point: int, end_point: int, clave_estrategia: str
+    ):
+        """Calcula el dado utilizado y lo elimina de la lista de dados."""
+        is_white = self.obtener_jugador_actual().is_white()
 
-                used_dice = required_distance
-                if required_distance not in self.__dados_restantes__:
-                    possible_dice = [
-                        d for d in self.__dados_restantes__ if d >= required_distance
-                    ]
-                    if possible_dice:
-                        used_dice = min(possible_dice)
-                    else:
-                        raise ValueError("Lógica de dados de Bear Off inconsistente.")
-                distance = used_dice
-            else:
-                distance = abs(end_point - start_point)
-            try:
-                self.__dados_restantes__.remove(distance)
-            except ValueError:
-                if is_bearing_off_move:
-                    try:
-                        possible_dice = [
-                            d
-                            for d in self.__dados_restantes__
-                            if d >= required_distance
-                        ]
-                        if possible_dice:
-                            self.__dados_restantes__.remove(min(possible_dice))
-                        else:
-                            pass
-                    except ValueError:
-                        pass
-                else:
-                    pass
+        required_distance = 0
+        is_bearing_off_move = (clave_estrategia == "bear_off")
 
+        if clave_estrategia == "bar":
+            required_distance = (24 - end_point) if is_white else (end_point + 1)
+        elif is_bearing_off_move:
+            required_distance = (start_point + 1) if is_white else (24 - start_point)
         else:
-            raise ValueError("Movimiento inválido según las reglas del Backgammon.")
+            required_distance = abs(end_point - start_point)
+
+        used_dice = required_distance
+        if required_distance not in self.__dados_restantes__:
+            if is_bearing_off_move:
+                possible_dice = [
+                    d for d in self.__dados_restantes__ if d >= required_distance
+                ]
+                if possible_dice:
+                    used_dice = min(possible_dice)
+                else:
+                    raise ValueError("Lógica de dados inconsistente.")
+            else:
+                raise ValueError("Dado no encontrado para movimiento normal/bar.")
+
+        try:
+            self.__dados_restantes__.remove(used_dice)
+        except ValueError:
+            pass
 
     def check_victory(self) -> bool:
         """Verifica si el jugador actual ha ganado."""
-        player_color = self.obtener_jugador_actual().__ficha__
+        player_color = self.obtener_jugador_actual().ficha
         return self.__board__.get_piece_count(player_color) == 0

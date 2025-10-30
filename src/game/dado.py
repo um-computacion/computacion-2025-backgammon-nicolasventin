@@ -6,12 +6,10 @@ import random
 
 
 class Dice:
-    """Clase para la lógica de tirada de dados."""
-
-    def __init__(self):
-        """Inicializa la lista de valores de la tirada."""
-        self.__values__ = []
-
+    """
+    Clase de utilidad para la lógica de tirada de dados.
+    Provee métodos estáticos para obtener resultados de dados.
+    """
     @staticmethod
     def get_dice():
         """

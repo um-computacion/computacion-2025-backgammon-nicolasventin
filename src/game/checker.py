@@ -1,17 +1,16 @@
 """
 Módulo que define la clase Checker (ficha).
 """
-
-
 class Checker:
     """Representa una ficha individual de Backgammon."""
 
     def __init__(self, color: str) -> None:
-        """Inicializa la ficha con su color ('B' o 'N') y estado."""
+        """Inicializa la ficha con su color ('W' o 'B') y estado."""
         self.__color__: str = color
         self.__esta_comida: bool = False
 
-    def get_color(self) -> str:
+    @property
+    def color(self) -> str:
         """Retorna el color de la ficha."""
         return self.__color__
 
