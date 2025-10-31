@@ -5,11 +5,10 @@ Contiene la Vista (CLIRenderer) y el Controlador (CLIController).
 
 import os
 import time
+from typing import Optional
 from src.game.backgammon import BackgammonGame
 from src.game.tablero import Tablero
 from src.game.jugador import Jugador
-from typing import Optional
-
 
 class CLIRenderer:
     """
@@ -21,17 +20,17 @@ class CLIRenderer:
         """Limpia la pantalla de la consola."""
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    def _get_drawing_grid(self, tablero: Tablero) -> list[list[str]]:
+    def get_drawing_grid(self, tablero: Tablero) -> list[list[str]]:
         """Crea la matriz de datos 10x12 para dibujar."""
         height, width = 10, 12
         grid = [[" " for _ in range(width)] for _ in range(height)]
 
         for c in range(12):
             point = 11 - c
-            owner, n = self._get_owner_and_count(tablero, point)
+            owner, n = self.get_owner_and_count(tablero, point)
             if not owner or n == 0:
                 continue
-            piece = self._get_piece_char(owner)
+            piece = self.get_piece_char(owner)
             if n <= 5:
                 for r in range(n):
                     grid[r][c] = piece
@@ -42,10 +41,10 @@ class CLIRenderer:
 
         for c in range(12):
             point = 12 + c
-            owner, n = self._get_owner_and_count(tablero, point)
+            owner, n = self.get_owner_and_count(tablero, point)
             if not owner or n == 0:
                 continue
-            piece = self._get_piece_char(owner)
+            piece = self.get_piece_char(owner)
             if n <= 5:
                 for k in range(n):
                     grid[9 - k][c] = piece
@@ -55,7 +54,7 @@ class CLIRenderer:
                 grid[5][c] = str(n - 4)
         return grid
 
-    def _get_owner_and_count(self, tablero: Tablero, idx: int) -> tuple[str | None, int]:
+    def get_owner_and_count(self, tablero: Tablero, idx: int) -> tuple[str | None, int]:
         """Helper INTERNO para 'draw'."""
         color, count = tablero.get_point_info(idx)
         if color is None:
@@ -63,13 +62,13 @@ class CLIRenderer:
         owner_str = "white" if color == "W" else "black"
         return (owner_str, count)
 
-    def _get_piece_char(self, owner: str) -> str:
+    def get_piece_char(self, owner: str) -> str:
         """Helper: Retorna el símbolo 'W' o 'B'."""
         return "W" if owner == "white" else "B"
 
     def mostrar_tablero(self, tablero: Tablero):
         """Imprime la representación gráfica del tablero."""
-        grid = self._get_drawing_grid(tablero)
+        grid = self.get_drawing_grid(tablero)
 
         print(" 11  10  09  08  07  06  ||  05  04  03  02  01  00")
         print("=" * self.BOARD_WIDTH)
@@ -131,7 +130,7 @@ class CLIController:
         self.__renderer__ = CLIRenderer()
         self.__ultimo_error__: Optional[str] = None
 
-    def _parsear_input(self, input_str: str, color_jugador: str) -> tuple[int, int]:
+    def parsear_input(self, input_str: str, color_jugador: str) -> tuple[int, int]:
         """Convierte el input del usuario a (start_point, end_point)."""
         partes = input_str.strip().upper().split()
         if len(partes) != 2:
@@ -145,21 +144,21 @@ class CLIController:
         else:
             try:
                 start_point = int(start_str)
-            except ValueError:
-                raise ValueError(f"Punto de inicio '{start_str}' no es válido.")
+            except ValueError as exc:
+                raise ValueError(f"Punto de inicio '{start_str}' no es válido.") from exc
 
         if end_str == "OFF":
             end_point = -1 if color_jugador == 'W' else 25
         else:
             try:
                 end_point = int(end_str)
-            except ValueError:
-                raise ValueError(f"Punto de fin '{end_str}' no es válido.")
+            except ValueError as exc:
+                raise ValueError(f"Punto de fin '{end_str}' no es válido.") from exc
         return (start_point, end_point)
 
-    def _realizar_turno(self, jugador: Jugador):
+    def realizar_turno(self, jugador: Jugador):
         """Maneja la lógica completa de un solo turno (tirar dados, mover)."""
-        
+
         dados = self.__game__.tirar_dados()
         self.__renderer__.mostrar_mensaje(f"{jugador.obtener_info()} ha sacado: {dados}")
 
@@ -181,7 +180,7 @@ class CLIController:
                     self.__game__.__dados_restantes__ = []
                     continue
 
-                start, end = self._parsear_input(input_str, jugador.ficha)
+                start, end = self.parsear_input(input_str, jugador.ficha)
 
             except ValueError as e:
                 self.__ultimo_error__ = f"Input inválido: {e}"
@@ -208,19 +207,19 @@ class CLIController:
     def iniciar_juego(self):
         """Inicia el bucle principal del juego."""
         jugador_ganador = None
-        
+
         while True:
             self.__renderer__.clear_screen()
             self.__renderer__.mostrar_tablero(self.__game__.__board__)
 
             jugador_actual = self.__game__.obtener_jugador_actual()
-            
+
             if self.__game__.check_victory():
                 indice_ganador = (self.__game__.__turno__ - 1) % 2
                 jugador_ganador = self.__game__.__players__[indice_ganador]
                 break
-            
-            self._realizar_turno(jugador_actual)
+
+            self.realizar_turno(jugador_actual)
             self.__game__.__turno__ += 1
 
         if jugador_ganador:

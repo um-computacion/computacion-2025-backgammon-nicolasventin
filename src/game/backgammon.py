@@ -3,11 +3,10 @@ Módulo principal del juego Backgammon.
 Maneja la lógica de la partida, turnos y movimientos.
 """
 
+from typing import Tuple, Optional
 from src.game.tablero import Tablero
 from src.game.jugador import Jugador
 from src.game.dado import Dice
-from typing import Tuple, Optional
-
 
 class BackgammonGame:
     """Clase principal que maneja la lógica y el estado de la partida."""
