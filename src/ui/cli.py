@@ -1,45 +1,236 @@
+"""
+Módulo de la Interfaz de Línea de Comandos (CLI) para Backgammon.
+Contiene la Vista (CLIRenderer) y el Controlador (CLIController).
+"""
+
+import os
+import time
+from src.game.backgammon import BackgammonGame
 from src.game.tablero import Tablero
+from src.game.jugador import Jugador
+from typing import Optional
 
 
 class CLIRenderer:
-    """Lógica de visualización específica para la Interfaz de Línea de Comandos (CLI)."""
+    """
+    Maneja toda la salida visual (la 'Vista') para la consola.
+    """
+    BOARD_WIDTH = 52
 
-    def _format_ficha(self, v: int) -> str:
-        """Formatea la ficha (cantidad + color) para impresión en consola."""
-        if v > 0:
-            return f"{v}B"
-        elif v < 0:
-            return f"{abs(v)}N"
-        else:
-            return "--"
+    def clear_screen(self):
+        """Limpia la pantalla de la consola."""
+        os.system('cls' if os.name == 'nt' else 'clear')
 
-    def mostrar_estado_puntos(self, tablero: Tablero):
-        """Muestra el estado de los puntos del tablero en consola."""
-        puntos = tablero.__puntos__
+    def _get_drawing_grid(self, tablero: Tablero) -> list[list[str]]:
+        """Crea la matriz de datos 10x12 para dibujar."""
+        height, width = 10, 12
+        grid = [[" " for _ in range(width)] for _ in range(height)]
 
-        # Arriba: 11..0
-        arriba_idx = list(range(11, -1, -1))
-        # Abajo: 12..23
-        abajo_idx = list(range(12, 24))
+        for c in range(12):
+            point = 11 - c
+            owner, n = self._get_owner_and_count(tablero, point)
+            if not owner or n == 0:
+                continue
+            piece = self._get_piece_char(owner)
+            if n <= 5:
+                for r in range(n):
+                    grid[r][c] = piece
+            else:
+                for r in range(4):
+                    grid[r][c] = piece
+                grid[4][c] = str(n - 4)
 
-        print("\n=== Estado de Puntos ===")
-        # Puntos arriba
-        print(" ".join(f"{i:02}" for i in arriba_idx))
-        print(" ".join(self._format_ficha(puntos[i]) for i in arriba_idx))
-        # Separador
-        print("-" * 60)
-        # Puntos abajo
-        print(" ".join(self._format_ficha(puntos[i]) for i in abajo_idx))
-        print(" ".join(f"{i:02}" for i in abajo_idx))
-        print("========================\n")
+        for c in range(12):
+            point = 12 + c
+            owner, n = self._get_owner_and_count(tablero, point)
+            if not owner or n == 0:
+                continue
+            piece = self._get_piece_char(owner)
+            if n <= 5:
+                for k in range(n):
+                    grid[9 - k][c] = piece
+            else:
+                for k in range(4):
+                    grid[9 - k][c] = piece
+                grid[5][c] = str(n - 4)
+        return grid
+
+    def _get_owner_and_count(self, tablero: Tablero, idx: int) -> tuple[str | None, int]:
+        """Helper INTERNO para 'draw'."""
+        color, count = tablero.get_point_info(idx)
+        if color is None:
+            return (None, 0)
+        owner_str = "white" if color == "W" else "black"
+        return (owner_str, count)
+
+    def _get_piece_char(self, owner: str) -> str:
+        """Helper: Retorna el símbolo 'W' o 'B'."""
+        return "W" if owner == "white" else "B"
 
     def mostrar_tablero(self, tablero: Tablero):
-        """Imprime la representación gráfica 10x12 del tablero en consola."""
-        grid = tablero.draw()
+        """Imprime la representación gráfica del tablero."""
+        grid = self._get_drawing_grid(tablero)
 
-        print("\n=== Tablero Gráfico ===")
-        # Imprimir la grilla fila por fila
-        for row in grid:
-            print(" | ".join(row))
+        print(" 11  10  09  08  07  06  ||  05  04  03  02  01  00")
+        print("=" * self.BOARD_WIDTH)
 
-        print("=======================\n")
+        for i, row in enumerate(grid):
+            row_str = ""
+            for c in range(6):
+                row_str += f" {row[c]:<2} "
+            row_str += " || "
+            for c in range(6, 12):
+                row_str += f" {row[c]:<2} "
+            print(row_str)
+
+            if i == 4:
+                print("-" * 24 + "BAR " + "-" * 24)
+
+        print("=" * self.BOARD_WIDTH)
+        print(" 12  13  14  15  16  17  ||  18  19  20  21  22  23")
+
+    def mostrar_estado_juego(self, game: BackgammonGame):
+        """Muestra la información del turno actual."""
+        jugador = game.obtener_jugador_actual()
+        fichas_bar_blancas = game.__board__.get_bar_count("W")
+        fichas_bar_negras = game.__board__.get_bar_count("B")
+
+        print("=" * self.BOARD_WIDTH)
+        print(f"Turno de: {jugador.obtener_info()}")
+        print(f"Dados restantes: {game.__dados_restantes__}")
+        print(f"Fichas en Barra: White (W): {fichas_bar_blancas} | Black (B): {fichas_bar_negras}")
+        print("=" * self.BOARD_WIDTH + "\n")
+
+    def mostrar_mensaje(self, mensaje: str):
+        """Muestra un mensaje genérico al usuario."""
+        print(f"\n>> {mensaje}\n")
+
+    def mostrar_mensaje_error(self, mensaje: str):
+        """Muestra un mensaje de error formateado."""
+        print(f"\n¡ERROR! {mensaje}")
+        print("-" * self.BOARD_WIDTH)
+
+    def mostrar_ganador(self, jugador: Jugador):
+        """Muestra el mensaje de victoria."""
+        print("*" * self.BOARD_WIDTH)
+        print(f"\n¡¡¡ FELICITACIONES, {jugador.obtener_info()} !!!")
+        print("¡HAS GANADO LA PARTIDA!")
+        print("*" * self.BOARD_WIDTH)
+
+    def pausar_para_continuar(self):
+        """Pausa la ejecución hasta que el usuario presione Enter."""
+        input("\nPresiona Enter para continuar...")
+
+
+class CLIController:
+    """Maneja el flujo del juego (el 'Controlador')."""
+
+    def __init__(self):
+        """Inicializa el juego (Modelo) y el renderer (Vista)."""
+        self.__game__ = BackgammonGame("Jugador 1", "Jugador 2")
+        self.__renderer__ = CLIRenderer()
+        self.__ultimo_error__: Optional[str] = None
+
+    def _parsear_input(self, input_str: str, color_jugador: str) -> tuple[int, int]:
+        """Convierte el input del usuario a (start_point, end_point)."""
+        partes = input_str.strip().upper().split()
+        if len(partes) != 2:
+            raise ValueError("Input inválido. Se esperan 2 partes (ej: '5 2' o 'BAR 3').")
+        start_str, end_str = partes
+        start_point = 0
+        end_point = 0
+
+        if start_str == "BAR":
+            start_point = 24 if color_jugador == 'W' else -1
+        else:
+            try:
+                start_point = int(start_str)
+            except ValueError:
+                raise ValueError(f"Punto de inicio '{start_str}' no es válido.")
+
+        if end_str == "OFF":
+            end_point = -1 if color_jugador == 'W' else 25
+        else:
+            try:
+                end_point = int(end_str)
+            except ValueError:
+                raise ValueError(f"Punto de fin '{end_str}' no es válido.")
+        return (start_point, end_point)
+
+    def _realizar_turno(self, jugador: Jugador):
+        """Maneja la lógica completa de un solo turno (tirar dados, mover)."""
+        
+        dados = self.__game__.tirar_dados()
+        self.__renderer__.mostrar_mensaje(f"{jugador.obtener_info()} ha sacado: {dados}")
+
+        while self.__game__.__dados_restantes__:
+            self.__renderer__.clear_screen()
+            self.__renderer__.mostrar_tablero(self.__game__.__board__)
+            self.__renderer__.mostrar_estado_juego(self.__game__)
+
+            if self.__ultimo_error__:
+                self.__renderer__.mostrar_mensaje_error(self.__ultimo_error__)
+
+            try:
+                input_str = input(
+                    f"Ingrese movimiento para {jugador.ficha} (ej: 23 18, BAR 20, 3 OFF): "
+                )
+
+                if input_str.strip().upper() == "PASAR":
+                    self.__renderer__.mostrar_mensaje("Turno cedido.")
+                    self.__game__.__dados_restantes__ = []
+                    continue
+
+                start, end = self._parsear_input(input_str, jugador.ficha)
+
+            except ValueError as e:
+                self.__ultimo_error__ = f"Input inválido: {e}"
+                continue
+
+            es_valido, mensaje_error = self.__game__.validar_movimiento(start, end)
+
+            if not es_valido:
+                self.__ultimo_error__ = mensaje_error
+                continue
+
+            try:
+                self.__game__.ejecutar_movimiento(start, end)
+                self.__ultimo_error__ = None
+            except ValueError as e:
+                self.__ultimo_error__ = str(e)
+                continue
+
+        self.__renderer__.clear_screen()
+        self.__renderer__.mostrar_tablero(self.__game__.__board__)
+        self.__renderer__.mostrar_mensaje(f"Fin del turno de {jugador.obtener_info()}.")
+        time.sleep(1.5)
+
+    def iniciar_juego(self):
+        """Inicia el bucle principal del juego."""
+        jugador_ganador = None
+        
+        while True:
+            self.__renderer__.clear_screen()
+            self.__renderer__.mostrar_tablero(self.__game__.__board__)
+
+            jugador_actual = self.__game__.obtener_jugador_actual()
+            
+            if self.__game__.check_victory():
+                indice_ganador = (self.__game__.__turno__ - 1) % 2
+                jugador_ganador = self.__game__.__players__[indice_ganador]
+                break
+            
+            self._realizar_turno(jugador_actual)
+            self.__game__.__turno__ += 1
+
+        if jugador_ganador:
+            self.__renderer__.clear_screen()
+            self.__renderer__.mostrar_tablero(self.__game__.__board__)
+            self.__renderer__.mostrar_ganador(jugador_ganador)
+
+if __name__ == "__main__":
+    try:
+        controlador = CLIController()
+        controlador.iniciar_juego()
+    except KeyboardInterrupt:
+        print("\n¡Juego interrumpido! Adiós.")
