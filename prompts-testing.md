@@ -507,3 +507,334 @@ src/game/tablero.py
 src/game/backgammon.py
 tests/test_backgammon.py
 tests/test_tablero.py
+
+# Prompt 5
+
+Modelo de IA: Gemini pro 2.5 flash
+
+Prompt Utilizado: 
+
+Como puedo arreglar estos nuevos errores de test?
+
+(venv) ➜  computacion-2025-backgammon-nicolasventin git:(62-actualizacion-de-cli-y-sus-tests) ✗ coverage run -m unittest discover -s tests
+..FEE.......FFFFF.F.FFF.............................
+======================================================================
+ERROR: test_ejecutar_movimiento__lanza_valueerror_dado_no_encontrado_normal (test_backgammon.TestBackgammonGame)
+Cubre el branch 'else: raise ValueError("Dado no encontrado...")'
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/unittest/mock.py", line 1379, in patched
+    return func(*newargs, **newkeywargs)
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 321, in test_ejecutar_movimiento__lanza_valueerror_dado_no_encontrado_normal
+    self.game.ejecutar_movimiento(20, 17)
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/src/game/backgammon.py", line 172, in ejecutar_movimiento
+    es_valido, mensaje_error = self.validar_movimiento(start_point, end_point)
+TypeError: cannot unpack non-iterable bool object
+
+======================================================================
+ERROR: test_ejecutar_movimiento__lanza_valueerror_si_logica_bear_off_falla (test_backgammon.TestBackgammonGame)
+Prueba que se lanza un error si la lógica de bear off falla internamente,
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/unittest/mock.py", line 1379, in patched
+    return func(*newargs, **newkeywargs)
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 254, in test_ejecutar_movimiento__lanza_valueerror_si_logica_bear_off_falla
+    self.game.ejecutar_movimiento(2, -1)
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/src/game/backgammon.py", line 172, in ejecutar_movimiento
+    es_valido, mensaje_error = self.validar_movimiento(start_point, end_point)
+TypeError: cannot unpack non-iterable bool object
+
+======================================================================
+FAIL: test_ejecutar_movimiento__lanza_error_si_movimiento_no_es_valido (test_backgammon.TestBackgammonGame)
+Prueba que ejecutar_movimiento lanza un ValueError si se intenta
+----------------------------------------------------------------------
+ValueError: No tienes un dado de 3.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 231, in test_ejecutar_movimiento__lanza_error_si_movimiento_no_es_valido
+    with self.assertRaisesRegex(ValueError, "Movimiento inválido"):
+AssertionError: "Movimiento inválido" does not match "No tienes un dado de 3."
+
+======================================================================
+FAIL: test_validar_bear_off__falla_si_no_hay_dados_disponibles (test_backgammon.TestBackgammonGame)
+Cubre el branch 'if not available_dice' en _validar_bear_off.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 295, in test_validar_bear_off__falla_si_no_hay_dados_disponibles
+    self.assertFalse(self.game.validar_movimiento(4, -1))
+AssertionError: (False, 'No tienes un dado de 5 o mayor.') is not false
+
+======================================================================
+FAIL: test_validar_movimiento__falla_si_clave_estrategia_no_existe (test_backgammon.TestBackgammonGame)
+Cubre el branch 'if clave_estrategia not in self.__estrategias_validacion__'.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/unittest/mock.py", line 1379, in patched
+    return func(*newargs, **newkeywargs)
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 285, in test_validar_movimiento__falla_si_clave_estrategia_no_existe
+    self.assertFalse(self.game.validar_movimiento(23, 20))
+AssertionError: (False, 'Estrategia de movimiento desconocida.') is not false
+
+======================================================================
+FAIL: test_validar_movimiento__falla_si_hay_fichas_en_barra_y_no_es_mov_barra (test_backgammon.TestBackgammonGame)
+Prueba que no se permite mover fichas del tablero (normal o bear off)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 195, in test_validar_movimiento__falla_si_hay_fichas_en_barra_y_no_es_mov_barra
+    self.assertFalse(self.game.validar_movimiento(10, 7))
+AssertionError: (False, 'Debes sacar tus fichas de la barra primero.') is not false
+
+======================================================================
+FAIL: test_validar_movimiento__falla_si_puntos_estan_fuera_del_tablero (test_backgammon.TestBackgammonGame)
+Prueba que la validación falla si el punto de inicio o
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 135, in test_validar_movimiento__falla_si_puntos_estan_fuera_del_tablero
+    self.assertFalse(self.game.validar_movimiento(20, 26))
+AssertionError: (False, 'Puntos fuera del rango del tablero.') is not false
+
+======================================================================
+FAIL: test_validar_movimiento_basico_fallos (test_backgammon.TestBackgammonGame)
+Prueba validaciones de movimientos básicos incorrectos, como
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 125, in test_validar_movimiento_basico_fallos
+    self.assertFalse(self.game.validar_movimiento(1, 6))
+AssertionError: (False, 'No tienes fichas en el punto de inicio (1).') is not false
+
+======================================================================
+FAIL: test_validar_movimiento_bear_off_dado_mayor_no_lejana (test_backgammon.TestBackgammonGame)
+Verifica que NO se permita salir con dado mayor si NO es la ficha más lejana.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 176, in test_validar_movimiento_bear_off_dado_mayor_no_lejana
+    self.assertFalse(self.game.validar_movimiento(2, -1))
+AssertionError: (False, 'No puedes usar un dado mayor (5) porque la ficha en 2 no es la más alejada.') is not false
+
+======================================================================
+FAIL: test_validar_movimiento_bear_off_falla_si_no_home_board (test_backgammon.TestBackgammonGame)
+Verifica que Bear Off falle si no todas las fichas están en Home Board.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 184, in test_validar_movimiento_bear_off_falla_si_no_home_board
+    self.assertFalse(self.game.validar_movimiento(2, -1))
+AssertionError: (False, 'No puedes sacar fichas hasta que todas estén en tu home board.') is not false
+
+======================================================================
+FAIL: test_validar_movimiento_bloqueado (test_backgammon.TestBackgammonGame)
+Prueba que validar_movimiento devuelva False si el punto de destino
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 90, in test_validar_movimiento_bloqueado
+    self.assertFalse(self.game.validar_movimiento(21, 18))
+AssertionError: (False, 'El punto de destino (18) está bloqueado por el oponente.') is not false
+
+======================================================================
+FAIL: test_validar_movimiento_desde_barra__es_correcto_para_ambos_colores (test_backgammon.TestBackgammonGame)
+Prueba la validación de movimientos para sacar fichas de la barra
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/nico/Documents/computacion-2025-backgammon-nicolasventin/tests/test_backgammon.py", line 71, in test_validar_movimiento_desde_barra__es_correcto_para_ambos_colores
+    self.assertFalse(self.game.validar_movimiento(24, 20))
+AssertionError: (False, 'No tienes un dado de 4.') is not false
+
+----------------------------------------------------------------------
+Ran 52 tests in 0.011s
+
+FAILED (failures=10, errors=2)
+
+Respuesta:
+
+Este es un error en cadena clásico que ocurre después de una refactorización exitosa.
+
+Tu refactorización de backgammon.py fue correcta:
+
+validar_movimiento ya no devuelve True o False.
+
+Ahora devuelve una tupla: (True, None) si es válido, o (False, "mensaje de error") si falla.
+
+El problema es que tus tests (test_backgammon.py) no se actualizaron para esperar este nuevo comportamiento.
+
+Cambios realizados:
+
+Hice lo que el prompt sugirió y actualizé los tests para que pasen.
+
+En los archivos
+tests/test_backgammon.py
+
+# Prompt 6
+
+Modelo de IA:  gemini pro 2.5 flash
+
+Prompt Utilizado:
+
+Necesito llegar al 90% del coverage en mi CLI, teniendo en cuenta que me faltan los tests que necesitan imputs, genera los tests usando @patch cuando sea necesario.
+
+Respuesta:
+
+¡Entendido! Alcanzar el 90% de cobertura en el cli.py es crucial, y el reporte muestra que los métodos _realizar_turno e iniciar_juego (el bucle principal) no están siendo testeados en absoluto.
+
+Esto es normal, ya que estos métodos se centran en I/O (input/print) y bucles while, que son más complejos de testear.
+
+Para solucionar esto, he añadido 6 tests nuevos a tu archivo tests/test_cli.py.
+
+@patch('src.ui.cli.time.sleep') # Evita las pausas de time.sleep
+    @patch('src.ui.cli.CLIRenderer') # Mockea la 'Vista'
+    @patch('builtins.input', side_effect=['23 20', 'PASAR']) # Simula 2 inputs
+    def test_realizar_turno_flujo_simple(self, mock_input, mock_renderer, mock_sleep):
+        """Prueba un turno simple: tirar dados, mover una vez, y pasar."""
+        
+        # Configura el 'Modelo' (BackgammonGame) para este test
+        mock_game = self.controller.__game__
+        mock_game.tirar_dados = MagicMock(return_value=[3, 5])
+        mock_game.validar_movimiento = MagicMock(return_value=(True, None))
+        mock_game.ejecutar_movimiento = MagicMock()
+        mock_game.__dados_restantes__ = [3, 5]
+        
+        self.controller._realizar_turno(self.mock_jugador)
+
+        mock_game.tirar_dados.assert_called_once()
+        mock_game.validar_movimiento.assert_called_with(23, 20)
+        mock_game.ejecutar_movimiento.assert_called_with(23, 20)
+        self.assertEqual(self.controller.__game__.__dados_restantes__, []) # Se limpiaron al 'PASAR'
+
+    @patch('src.ui.cli.time.sleep')
+    @patch('src.ui.cli.CLIRenderer')
+    @patch('builtins.input', side_effect=['bad input', 'PASAR'])
+    def test_realizar_turno_con_error_de_parseo(self, mock_input, mock_renderer, mock_sleep):
+        """Prueba que un error de parseo se maneja y se vuelve a pedir input."""
+        mock_game = self.controller.__game__
+        mock_game.tirar_dados = MagicMock(return_value=[3, 5])
+        mock_game.ejecutar_movimiento = MagicMock()
+        mock_game.__dados_restantes__ = [3, 5]
+        
+        self.controller._realizar_turno(self.mock_jugador)
+
+        self.assertEqual(mock_input.call_count, 2)
+        self.assertIn("Input inválido", self.controller.__ultimo_error__)
+        mock_game.ejecutar_movimiento.assert_not_called()
+
+    @patch('src.ui.cli.time.sleep')
+    @patch('src.ui.cli.CLIRenderer')
+    @patch('builtins.input', side_effect=['23 21', 'PASAR'])
+    def test_realizar_turno_con_error_de_validacion(self, mock_input, mock_renderer, mock_sleep):
+        """Prueba que un error de validación (del Modelo) se maneja."""
+        mock_game = self.controller.__game__
+        mock_game.tirar_dados = MagicMock(return_value=[3, 5])
+        mock_game.validar_movimiento = MagicMock(return_value=(False, "No tienes un dado de 2."))
+        mock_game.ejecutar_movimiento = MagicMock()
+        mock_game.__dados_restantes__ = [3, 5]
+
+        self.controller._realizar_turno(self.mock_jugador)
+
+        self.assertEqual(mock_input.call_count, 2)
+        self.assertEqual(self.controller.__ultimo_error__, "No tienes un dado de 2.")
+        mock_game.ejecutar_movimiento.assert_not_called()
+
+    @patch('src.ui.cli.time.sleep')
+    @patch('src.ui.cli.CLIRenderer')
+    @patch('builtins.input', side_effect=['23 20', 'PASAR'])
+    def test_realizar_turno_con_error_de_ejecucion(self, mock_input, mock_renderer, mock_sleep):
+        """Prueba que un error interno de ejecución se captura."""
+        mock_game = self.controller.__game__
+        mock_game.tirar_dados = MagicMock(return_value=[3, 5])
+        mock_game.validar_movimiento = MagicMock(return_value=(True, None))
+        mock_game.ejecutar_movimiento = MagicMock(side_effect=ValueError("Error de Lógica"))
+        mock_game.__dados_restantes__ = [3, 5]
+
+        self.controller._realizar_turno(self.mock_jugador)
+
+        self.assertEqual(self.controller.__ultimo_error__, "Error de Lógica")
+        mock_game.ejecutar_movimiento.assert_called_once()
+
+    @patch('src.ui.cli.CLIController._realizar_turno')
+    @patch('src.ui.cli.CLIRenderer')
+    def test_iniciar_juego_termina_con_victoria(self, mock_renderer, mock_realizar_turno):
+        """Prueba que el bucle de iniciar_juego termina si check_victory es True."""
+        mock_game = self.controller.__game__
+        # Simula un juego que dura 2 turnos y luego termina
+        mock_game.check_victory.side_effect = [False, True]
+        
+        self.controller.iniciar_juego()
+
+        # Se llamó a _realizar_turno 1 vez (turno 0)
+        self.assertEqual(mock_realizar_turno.call_count, 1)
+        # Se llamó al renderer de 'mostrar_ganador'
+        mock_renderer_instance = mock_renderer.return_value
+        mock_renderer_instance.mostrar_ganador.assert_called_once()
+
+
+Cambios realizados:
+
+Utilice parte de la respuesta anterior debido a que los test fallan, despues de arreglar los tests, quedaron asi:
+
+    @patch('time.sleep')
+    @patch('builtins.input', side_effect=['bad input', 'PASAR'])
+    def test_realizar_turno_con_error_de_parseo(self, mock_input, mock_sleep):
+        """Prueba que un error de parseo se maneja y se vuelve a pedir input."""
+        self.controller.__renderer__ = MagicMock(spec=CLIRenderer)
+        mock_game = self.controller.__game__
+        mock_game.tirar_dados = MagicMock(return_value=[3, 5])
+        mock_game.ejecutar_movimiento = MagicMock()
+        mock_game.__dados_restantes__ = [3, 5]
+        
+        self.controller._realizar_turno(self.mock_jugador)
+
+        self.assertEqual(mock_input.call_count, 2)
+        self.assertIn("Input inválido", self.controller.__ultimo_error__)
+        mock_game.ejecutar_movimiento.assert_not_called()
+
+    @patch('time.sleep')
+    @patch('builtins.input', side_effect=['23 21', 'PASAR'])
+    def test_realizar_turno_con_error_de_validacion(self, mock_input, mock_sleep):
+        """Prueba que un error de validación (del Modelo) se maneja."""
+        self.controller.__renderer__ = MagicMock(spec=CLIRenderer)
+        mock_game = self.controller.__game__
+        mock_game.tirar_dados = MagicMock(return_value=[3, 5])
+        mock_game.validar_movimiento = MagicMock(return_value=(False, "No tienes un dado de 2."))
+        mock_game.ejecutar_movimiento = MagicMock()
+        mock_game.__dados_restantes__ = [3, 5]
+
+        self.controller._realizar_turno(self.mock_jugador)
+
+        self.assertEqual(mock_input.call_count, 2)
+        self.assertEqual(self.controller.__ultimo_error__, "No tienes un dado de 2.")
+        mock_game.ejecutar_movimiento.assert_not_called()
+
+    @patch('time.sleep')
+    @patch('builtins.input', side_effect=['23 20', 'PASAR'])
+    def test_realizar_turno_con_error_de_ejecucion(self, mock_input, mock_sleep):
+        """Prueba que un error interno de ejecución se captura."""
+        self.controller.__renderer__ = MagicMock(spec=CLIRenderer)
+        mock_game = self.controller.__game__
+        mock_game.tirar_dados = MagicMock(return_value=[3, 5])
+        mock_game.validar_movimiento = MagicMock(return_value=(True, None))
+        mock_game.ejecutar_movimiento = MagicMock(side_effect=ValueError("Error de Lógica"))
+        mock_game.__dados_restantes__ = [3, 5]
+
+        self.controller._realizar_turno(self.mock_jugador)
+
+        self.assertEqual(self.controller.__ultimo_error__, "Error de Lógica")
+        mock_game.ejecutar_movimiento.assert_called_once()
+
+    @patch('src.ui.cli.CLIController._realizar_turno')
+    def test_iniciar_juego_termina_con_victoria(self, mock_realizar_turno): 
+        """Prueba que el bucle de iniciar_juego termina si check_victory es True."""
+        
+        mock_renderer_instance = MagicMock(spec=CLIRenderer)
+        self.controller.__renderer__ = mock_renderer_instance
+        
+        mock_game = self.controller.__game__
+        mock_game.check_victory = MagicMock(side_effect=[False, True]) 
+        
+        self.controller.iniciar_juego()
+
+        self.assertEqual(mock_realizar_turno.call_count, 1)
+        
+        mock_renderer_instance.mostrar_ganador.assert_called_once()
+
+cambios en los archivos
+src/ui/cli.py
+tests/test_cli.py
