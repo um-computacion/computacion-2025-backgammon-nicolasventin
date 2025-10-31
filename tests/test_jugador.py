@@ -21,7 +21,7 @@ class TestJugador(unittest.TestCase):
         jugador = Jugador("Camila", "B")
         resultado = jugador.obtener_info()
         self.assertEqual(resultado, "Camila (B)")
-    
+
     def test_is_white(self):
         """Prueba que el helper is_white() devuelva el booleano correcto."""
         jugador_blanco = Jugador("Player 1", "W")

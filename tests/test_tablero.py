@@ -125,7 +125,7 @@ class TestTablero(unittest.TestCase):
 
         self._setup_checkers(17, "W", 1)
         self.assertFalse(self.tablero.is_home_board_ready("W"))
-        
+
         self.setUp()
         self._setup_checkers(6, "B", 1)
         self.assertFalse(self.tablero.is_home_board_ready("B"))

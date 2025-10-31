@@ -2,7 +2,7 @@
 Pruebas unitarias para la clase BackgammonGame.
 """
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from src.game.backgammon import BackgammonGame
 from src.game.checker import Checker
 
@@ -222,7 +222,7 @@ class TestBackgammonGame(unittest.TestCase):
         self.assertEqual(self.game.__dados_restantes__, [])
 
     @patch('src.game.backgammon.BackgammonGame.validar_movimiento', return_value=(True, None))
-    def test_ejecutar_movimiento__lanza_valueerror_si_logica_bear_off_falla(self, mock_validar):
+    def test_ejecutar_movimiento__lanza_valueerror_si_logica_bear_off_falla(self, _mock_validar):
         """
         Prueba que se lanza un error si la lógica de bear off falla internamente,
         usando un mock para saltar la validación principal.
@@ -258,7 +258,7 @@ class TestBackgammonGame(unittest.TestCase):
         self.assertFalse(self.game.check_victory())
 
     @patch('src.game.backgammon.BackgammonGame._get_strategy_key', return_value="desconocida")
-    def test_validar_movimiento__falla_si_clave_estrategia_no_existe(self, mock_get_key):
+    def test_validar_movimiento__falla_si_clave_estrategia_no_existe(self, _mock_get_key):
         """
         Cubre el branch 'if clave_estrategia not in self.__estrategias_validacion__'.
         """
@@ -289,7 +289,7 @@ class TestBackgammonGame(unittest.TestCase):
         self.assertEqual(self.game.__dados_restantes__, [])
 
     @patch('src.game.backgammon.BackgammonGame.validar_movimiento', return_value=(True, None))
-    def test_ejecutar_movimiento__lanza_valueerror_dado_no_encontrado_normal(self, mock_validar):
+    def test_ejecutar_movimiento__lanza_valueerror_dado_no_encontrado_normal(self, _mock_validar):
         """
         Cubre el branch 'else: raise ValueError("Dado no encontrado...")'
         en usar_dado_para_movimiento.
