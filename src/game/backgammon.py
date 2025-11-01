@@ -363,4 +363,3 @@ class BackgammonGame:
         """
         player_color = self.obtener_jugador_actual().ficha
         return self.__board__.get_piece_count(player_color) == 0
-
