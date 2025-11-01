@@ -15,18 +15,43 @@ class TestCLIRenderer(unittest.TestCase):
     """Pruebas para la clase CLIRenderer (la 'Vista')."""
 
     def setUp(self):
+        """
+        Recibe:
+            Nada.
+        Hace:
+            Se ejecuta antes de cada test. Crea instancias de
+            CLIRenderer, Tablero, BackgammonGame y un Jugador 'W'.
+        Devuelve:
+            Nada.
+        """
         self.renderer = CLIRenderer()
         self.tablero = Tablero()
         self.game = BackgammonGame()
         self.jugador_w = Jugador("Jugador 1", "W")
 
     def test_get_piece_char(self):
-        """Prueba el helper que convierte el color en 'W' o 'B'."""
+        """
+        Recibe:
+            Nada.
+        Hace:
+            Prueba el helper `_get_piece_char`.
+        Devuelve:
+            Verifica que 'white' se convierta en 'W' y 'black' en 'B'.
+        """
         self.assertEqual(self.renderer.get_piece_char("white"), "W")
         self.assertEqual(self.renderer.get_piece_char("black"), "B")
 
     def test_get_owner_and_count(self):
-        """Prueba que el helper de 'draw' usa la API de Tablero (DIP)."""
+        """
+        Recibe:
+            Nada.
+        Hace:
+            Prueba el helper `_get_owner_and_count` consultando el
+            tablero inicializado.
+        Devuelve:
+            Verifica que devuelva la tupla correcta (ej: 'black', 2) para
+            puntos ocupados y (None, 0) para puntos vacíos.
+        """
         owner, count = self.renderer.get_owner_and_count(self.tablero, 0)
         self.assertEqual(owner, "black")
         self.assertEqual(count, 2)
@@ -40,7 +65,15 @@ class TestCLIRenderer(unittest.TestCase):
         self.assertEqual(count, 0)
 
     def test_get_drawing_grid(self):
-        """Prueba la lógica principal de 'draw' (movida desde Tablero)."""
+        """
+        Recibe:
+            Nada.
+        Hace:
+            Llama a `get_drawing_grid` en el tablero inicial.
+        Devuelve:
+            Verifica que la matriz 10x12 generada contenga los
+            caracteres 'W' y 'B' en las posiciones iniciales correctas.
+        """
         grid = self.renderer.get_drawing_grid(self.tablero)
 
         self.assertEqual(grid[0][11], "B")
@@ -52,7 +85,15 @@ class TestCLIRenderer(unittest.TestCase):
 
     @patch("builtins.print")
     def test_mostrar_tablero(self, mock_print):
-        """Prueba que mostrar_tablero imprime las cabeceras y la barra."""
+        """
+        Recibe:
+            mock_print (MagicMock): Mock de la función `print`.
+        Hace:
+            Llama a `mostrar_tablero`.
+        Devuelve:
+            Verifica que la salida (capturada por `mock_print`) contenga
+            las cabeceras (ej: "11 10...") y la línea de la "BAR".
+        """
         self.renderer.mostrar_tablero(self.tablero)
 
         output = "\n".join([call[0][0] for call in mock_print.call_args_list])
@@ -63,7 +104,16 @@ class TestCLIRenderer(unittest.TestCase):
 
     @patch("builtins.print")
     def test_mostrar_estado_juego(self, mock_print):
-        """Prueba que el estado del juego se imprime correctamente (DIP)."""
+        """
+        Recibe:
+            mock_print (MagicMock): Mock de la función `print`.
+        Hace:
+            Configura un estado de juego (dados restantes, fichas en barra)
+            y llama a `mostrar_estado_juego`.
+        Devuelve:
+            Verifica que la salida contenga el nombre del jugador,
+            los dados y el conteo de la barra correctos.
+        """
         self.game.__dados_restantes__ = [5, 2]
         self.game.__board__.__bar_blancas__.append(Checker("W"))
 
@@ -77,7 +127,15 @@ class TestCLIRenderer(unittest.TestCase):
 
     @patch("builtins.print")
     def test_mostrar_mensajes(self, mock_print):
-        """Prueba los helpers de mensajes."""
+        """
+        Recibe:
+            mock_print (MagicMock): Mock de la función `print`.
+        Hace:
+            Llama a `mostrar_mensaje` y `mostrar_mensaje_error`.
+        Devuelve:
+            Verifica que los mensajes se impriman con el formato
+            correcto (ej: ">>" para info, "¡ERROR!" para error).
+        """
         self.renderer.mostrar_mensaje("Test msg")
         self.assertIn(">> Test msg", mock_print.call_args_list[-1][0][0])
 
@@ -89,7 +147,15 @@ class TestCLIRenderer(unittest.TestCase):
 
     @patch("builtins.input")
     def test_pausar_para_continuar(self, mock_input):
-        """Prueba que se le pide al usuario presionar Enter."""
+        """
+        Recibe:
+            mock_input (MagicMock): Mock de la función `input`.
+        Hace:
+            Llama a `pausar_para_continuar`.
+        Devuelve:
+            Verifica que se llame a `input` con el mensaje
+            "Presiona Enter para continuar...".
+        """
         self.renderer.pausar_para_continuar()
         mock_input.assert_called_once_with("\nPresiona Enter para continuar...")
 
@@ -98,13 +164,31 @@ class TestCLIController(unittest.TestCase):
     """Pruebas para la clase CLIController (el 'Controlador')."""
 
     def setUp(self):
+        """
+        Recibe:
+            Nada.
+        Hace:
+            Se ejecuta antes de cada test. Crea una instancia de
+            `CLIController` y un `MagicMock` de `Jugador`.
+        Devuelve:
+            Nada.
+        """
         self.controller = CLIController()
         self.mock_jugador = MagicMock(spec=Jugador)
-        self.mock_jugador.color_fichas = "W"
+        self.mock_jugador.ficha = "W"  # Corregido de color_fichas
         self.mock_jugador.nombre = "Test Player"
 
     def test_parsear_input_movimientos_validos(self):
-        """Prueba la lógica de parseo para inputs correctos."""
+        """
+        Recibe:
+            Nada.
+        Hace:
+            Llama a `parsear_input` con varios formatos de
+            texto válidos (normal, BAR, OFF, mayús/minús).
+        Devuelve:
+            Verifica que la tupla (start_point, end_point) devuelta
+            sea la correcta numéricamente para cada caso.
+        """
         self.assertEqual(self.controller.parsear_input("23 20", "W"), (23, 20))
         self.assertEqual(self.controller.parsear_input("BAR 21", "W"), (24, 21))
         self.assertEqual(self.controller.parsear_input("BAR 3", "B"), (-1, 3))
@@ -114,8 +198,16 @@ class TestCLIController(unittest.TestCase):
         self.assertEqual(self.controller.parsear_input("3 off", "W"), (3, -1))
 
     def test_parsear_input_errores(self):
-        """Prueba que el parseo lanza ValueError ante inputs incorrectos."""
-
+        """
+        Recibe:
+            Nada.
+        Hace:
+            Llama a `parsear_input` con varios formatos inválidos
+            (partes incompletas, texto no numérico).
+        Devuelve:
+            Verifica que se lance `ValueError` con el mensaje de
+            error apropiado en cada caso.
+        """
         with self.assertRaisesRegex(ValueError, "Input inválido"):
             self.controller.parsear_input("5", "W")
         with self.assertRaisesRegex(ValueError, "Input inválido"):
@@ -132,7 +224,17 @@ class TestCLIController(unittest.TestCase):
     @patch("time.sleep")
     @patch("builtins.input", side_effect=["bad input", "PASAR"])
     def test_realizar_turno_con_error_de_parseo(self, mock_input, _mock_sleep):
-        """Prueba que un error de parseo se maneja y se vuelve a pedir input."""
+        """
+        Recibe:
+            mock_input (MagicMock): Mock de `input`.
+            _mock_sleep (MagicMock): Mock de `time.sleep`.
+        Hace:
+            Simula un turno donde el usuario primero ingresa "bad input"
+            (que falla `parsear_input`) y luego "PASAR".
+        Devuelve:
+            Verifica que `input` sea llamado 2 veces, que `__ultimo_error__`
+            contenga "Input inválido" y que `ejecutar_movimiento` no se llame.
+        """
         self.controller.__renderer__ = MagicMock(spec=CLIRenderer)
         mock_game = self.controller.__game__
         mock_game.tirar_dados = MagicMock(return_value=[3, 5])
@@ -148,7 +250,17 @@ class TestCLIController(unittest.TestCase):
     @patch("time.sleep")
     @patch("builtins.input", side_effect=["23 21", "PASAR"])
     def test_realizar_turno_con_error_de_validacion(self, mock_input, _mock_sleep):
-        """Prueba que un error de validación (del Modelo) se maneja."""
+        """
+        Recibe:
+            mock_input (MagicMock): Mock de `input`.
+            _mock_sleep (MagicMock): Mock de `time.sleep`.
+        Hace:
+            Simula un turno donde `validar_movimiento` (mockeado)
+            devuelve (False, "No tienes un dado de 2.").
+        Devuelve:
+            Verifica que `__ultimo_error__` contenga el mensaje del modelo
+            y que `ejecutar_movimiento` no se llame.
+        """
         self.controller.__renderer__ = MagicMock(spec=CLIRenderer)
         mock_game = self.controller.__game__
         mock_game.tirar_dados = MagicMock(return_value=[3, 5])
@@ -167,7 +279,17 @@ class TestCLIController(unittest.TestCase):
     @patch("time.sleep")
     @patch("builtins.input", side_effect=["23 20", "PASAR"])
     def test_realizar_turno_con_error_de_ejecucion(self, _mock_input, _mock_sleep):
-        """Prueba que un error interno de ejecución se captura."""
+        """
+        Recibe:
+            _mock_input (MagicMock): Mock de `input`.
+            _mock_sleep (MagicMock): Mock de `time.sleep`.
+        Hace:
+            Simula un turno donde `validar_movimiento` pasa, pero
+            `ejecutar_movimiento` (mockeado) lanza un ValueError.
+        Devuelve:
+            Verifica que el `ValueError` sea capturado, almacenado en
+            `__ultimo_error__`, y que `ejecutar_movimiento` haya sido llamado.
+        """
         self.controller.__renderer__ = MagicMock(spec=CLIRenderer)
         mock_game = self.controller.__game__
         mock_game.tirar_dados = MagicMock(return_value=[3, 5])
@@ -184,7 +306,16 @@ class TestCLIController(unittest.TestCase):
 
     @patch("src.ui.cli.CLIController.realizar_turno")
     def test_iniciar_juego_termina_con_victoria(self, mock_realizar_turno):
-        """Prueba que el bucle de iniciar_juego termina si check_victory es True."""
+        """
+        Recibe:
+            mock_realizar_turno (MagicMock): Mock del método `realizar_turno`.
+        Hace:
+            Simula el bucle `iniciar_juego` donde `check_victory`
+            devuelve False la primera vez y True la segunda.
+        Devuelve:
+            Verifica que `realizar_turno` se llame solo 1 vez y
+            que `mostrar_ganador` sea llamado al salir del bucle.
+        """
 
         mock_renderer_instance = MagicMock(spec=CLIRenderer)
         self.controller.__renderer__ = mock_renderer_instance

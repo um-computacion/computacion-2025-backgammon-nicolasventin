@@ -10,13 +10,17 @@ from src.game.dado import Dice
 
 class TestDice(TestCase):
     """Pruebas para la clase Dice."""
-    # @patch.object(Clase, 'metodo', side_effect=[5, 2])
-    # def test_method(self, randint_patched):
-    #     ...
 
     @patch("random.randint", side_effect=[5, 2])
     def test_simple(self, randint_patched):
-        """Prueba una tirada simple (no doble)."""
+        """
+        Recibe:
+            randint_patched (MagicMock): Mock de 'random.randint'.
+        Hace:
+            Llama a `Dice.get_dice()` forzando una tirada no-doble (5 y 2).
+        Devuelve:
+            Verifica que la tupla devuelta sea (5, 2) y tenga longitud 2.
+        """
         dice = Dice.get_dice()
         self.assertEqual(len(dice), 2)
         self.assertEqual(dice[0], 5)
@@ -26,7 +30,14 @@ class TestDice(TestCase):
 
     @patch("random.randint", return_value=1)
     def test_complex(self, randint_patched):
-        """Prueba una tirada doble."""
+        """
+        Recibe:
+            randint_patched (MagicMock): Mock de 'random.randint'.
+        Hace:
+            Llama a `Dice.get_dice()` forzando una tirada doble (1 y 1).
+        Devuelve:
+            Verifica que la tupla devuelta sea (1, 1, 1, 1) y tenga longitud 4.
+        """
         dice = Dice.get_dice()
         self.assertEqual(len(dice), 4)
         self.assertEqual(dice[0], 1)
@@ -38,14 +49,31 @@ class TestDice(TestCase):
 
     @patch("random.randint", side_effect=ValueError("error!!"))
     def test_error(self, randint_patched):
-        """Prueba que se lanza un error si se produce un error."""
+        """
+        Recibe:
+            randint_patched (MagicMock): Mock de 'random.randint'.
+        Hace:
+            Llama a `Dice.get_dice()` forzando una excepción interna
+            (ej. ValueError).
+        Devuelve:
+            Verifica que `get_dice` capture la excepción y devuelva
+            una tupla vacía ().
+        """
         dice = Dice.get_dice()
         self.assertEqual(len(dice), 0)
         self.assertTrue(randint_patched.called)
         self.assertEqual(randint_patched.call_count, 1)
 
     def test_double(self):
-        """Prueba que la tiradas de dados dobles devuelven 4 valores."""
+        """
+        Recibe:
+            Nada.
+        Hace:
+            Prueba (de forma duplicada a `test_simple` y `test_complex`)
+            ambos escenarios (simple y doble) usando `with patch`.
+        Devuelve:
+            Verifica los mismos resultados que los tests anteriores.
+        """
         with patch("random.randint", side_effect=[5, 2]) as randint_patched:
             dice = Dice.get_dice()
             self.assertEqual(len(dice), 2)

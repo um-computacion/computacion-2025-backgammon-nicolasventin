@@ -12,7 +12,17 @@ class BackgammonGame:
     """Clase principal que maneja la lógica y el estado de la partida."""
 
     def __init__(self, name_p1="Jugador 1", name_p2="Jugador 2"):
-        """Inicializa el tablero, los dados, los jugadores y el turno."""
+        """
+        Recibe:
+            name_p1 (str): Nombre del Jugador 1 (Fichas 'W').
+            name_p2 (str): Nombre del Jugador 2 (Fichas 'B').
+        Hace:
+            Inicializa las dependencias: Tablero, Dado, y los dos Jugadores.
+            Configura el turno inicial y la lista de dados restantes.
+            Registra las estrategias de validación (Patrón Strategy).
+        Devuelve:
+            Nada.
+        """
         self.__board__ = Tablero()
         self.__dice__ = Dice()
         self.__players__ = [Jugador(name_p1, "W"), Jugador(name_p2, "B")]
@@ -26,18 +36,42 @@ class BackgammonGame:
         }
 
     def obtener_jugador_actual(self):
-        """Retorna el objeto Jugador cuyo turno es actualmente."""
+        """
+        Recibe:
+            Nada.
+        Hace:
+            Calcula el índice del jugador actual basado en `__turno__`.
+        Devuelve:
+            (Jugador): La instancia del objeto Jugador que tiene el turno.
+        """
         player_index = self.__turno__ % 2
         return self.__players__[player_index]
 
     def tirar_dados(self):
-        """Tira los dados y establece los valores disponibles para el turno."""
+        """
+        Recibe:
+            Nada.
+        Hace:
+            Llama a `Dice.get_dice()` y almacena el resultado (como lista)
+            en `__dados_restantes__`.
+        Devuelve:
+            (list): Una lista de 2 o 4 enteros con los dados del turno.
+        """
         self.__dados_restantes__ = list(Dice.get_dice())
         return self.__dados_restantes__
 
     def _get_strategy_key(self, start_point: int, end_point: int) -> str:
         """
-        Retorna la clave para el diccionario de estrategias.
+        Recibe:
+            start_point (int): El punto de origen del movimiento.
+            end_point (int): El punto de destino del movimiento.
+        Hace:
+            Determina qué tipo de movimiento se está intentando (normal,
+            desde la barra, o bear off) basado en los puntos de
+            origen/destino y el jugador actual.
+        Devuelve:
+            (str): La clave ("normal", "bar", "bear_off") para el
+                   diccionario `__estrategias_validacion__`.
         """
         player = self.obtener_jugador_actual()
         is_white = player.is_white()
@@ -60,7 +94,18 @@ class BackgammonGame:
         self, start_point: int, end_point: int
     ) -> Tuple[bool, Optional[str]]:
         """
-        Verifica si un movimiento es legal.
+        Recibe:
+            start_point (int): El punto de origen del movimiento.
+            end_point (int): El punto de destino del movimiento.
+        Hace:
+            Actúa como un despachador (Dispatcher).
+            1. Valida los rangos básicos de los puntos.
+            2. Usa `_get_strategy_key` para determinar el tipo de movimiento.
+            3. Llama a la función de validación específica (ej: `_validar_normal`).
+        Devuelve:
+            (Tuple[bool, Optional[str]]):
+                - (True, None) si el movimiento es válido.
+                - (False, "Mensaje de error") si el movimiento es inválido.
         """
         if start_point < -1 or start_point > 24 or end_point < -1 or end_point > 25:
             return (False, "Puntos fuera del rango del tablero.")
@@ -83,7 +128,20 @@ class BackgammonGame:
     def _validar_bear_off(
         self, start_point: int, _end_point: int, player: Jugador
     ) -> Optional[str]:
-        """Valida 'bear off'. Retorna un mensaje de error o None."""
+        """
+        Recibe:
+            start_point (int): El punto de origen (0-5 para W, 18-23 para B).
+            _end_point (int): -1 (W) o 25 (B). No se usa aquí.
+            player (Jugador): El jugador actual.
+        Hace:
+            Valida un movimiento de "bear off" (sacar ficha).
+            1. Verifica que no haya fichas en la barra.
+            2. Verifica que `is_home_board_ready` sea True.
+            3. Verifica si existe un dado exacto (`required_distance`).
+            4. Si no, verifica si hay un dado mayor Y `is_point_farthest` es True.
+        Devuelve:
+            (Optional[str]): None si es válido, o un mensaje de error si falla.
+        """
         player_color = player.ficha
         is_white = player.is_white()
 
@@ -117,7 +175,19 @@ class BackgammonGame:
     def _validar_desde_barra(
         self, _start_point: int, end_point: int, player: Jugador
     ) -> Optional[str]:
-        """Valida ÚNICAMENTE un movimiento desde la barra."""       
+        """
+        Recibe:
+            _start_point (int): 24 (W) o -1 (B). No se usa aquí.
+            end_point (int): El punto de destino (0-5 para B, 18-23 para W).
+            player (Jugador): El jugador actual.
+        Hace:
+            Valida un movimiento para sacar una ficha de la barra.
+            1. Verifica que haya fichas en la barra.
+            2. Calcula la distancia requerida para entrar.
+            3. Llama a `_validar_punto_llegada` para verificar el dado y bloqueo.
+        Devuelve:
+            (Optional[str]): None si es válido, o un mensaje de error si falla.
+        """
         player_color = player.ficha
         is_white = player.is_white()
 
@@ -134,7 +204,20 @@ class BackgammonGame:
     def _validar_normal(
         self, start_point: int, end_point: int, player: Jugador
     ) -> Optional[str]:
-        """Valida un movimiento normal en el tablero."""
+        """
+        Recibe:
+            start_point (int): El punto de origen (0-23).
+            end_point (int): El punto de destino (0-23).
+            player (Jugador): El jugador actual.
+        Hace:
+            Valida un movimiento normal en el tablero.
+            1. Verifica que no haya fichas en la barra.
+            2. Verifica que el jugador posea fichas en `start_point`.
+            3. Verifica que el movimiento sea en la dirección correcta.
+            4. Llama a `_validar_punto_llegada` para verificar el dado y bloqueo.
+        Devuelve:
+            (Optional[str]): None si es válido, o un mensaje de error si falla.
+        """
         player_color = player.ficha
         is_white = player.is_white()
 
@@ -155,7 +238,18 @@ class BackgammonGame:
     def _validar_punto_llegada(
         self, end_point: int, required_distance: int, player_color: str
     ) -> Optional[str]:
-        """Valida el dado y el punto de llegada (común a mov. normal y bar)."""
+        """
+        Recibe:
+            end_point (int): El punto de destino.
+            required_distance (int): El valor del dado necesario.
+            player_color (str): El color del jugador actual.
+        Hace:
+            Valida los dos factores comunes de un movimiento:
+            1. Verifica que `required_distance` esté en `__dados_restantes__`.
+            2. Verifica que `end_point` no esté bloqueado (`is_point_blocked`).
+        Devuelve:
+            (Optional[str]): None si es válido, o un mensaje de error si falla.
+        """
         if required_distance not in self.__dados_restantes__:
             return f"No tienes un dado de {required_distance}."
 
@@ -165,7 +259,18 @@ class BackgammonGame:
         return None
 
     def ejecutar_movimiento(self, start_point: int, end_point: int):
-        """Aplica el movimiento al tablero y usa el dado utilizado."""
+        """
+        Recibe:
+            start_point (int): El punto de origen validado.
+            end_point (int): El punto de destino validado.
+        Hace:
+            Actúa como despachador (Dispatcher) para ejecutar un movimiento.
+            1. Llama a `validar_movimiento` (control de seguridad).
+            2. Llama a `_ejecutar_movimiento_tablero` para hacer el 'hit' y mover.
+            3. Llama a `usar_dado_para_movimiento` para consumir el dado.
+        Devuelve:
+            Nada.
+        """
         es_valido, mensaje_error = self.validar_movimiento(start_point, end_point)
         if not es_valido:
             raise ValueError(mensaje_error)
@@ -179,7 +284,18 @@ class BackgammonGame:
     def _ejecutar_movimiento_tablero(
         self, start_point: int, end_point: int, clave_estrategia: str
     ):
-        """Ejecuta el 'hit' (si aplica) y mueve la ficha en el tablero."""
+        """
+        Recibe:
+            start_point (int): El punto de origen.
+            end_point (int): El punto de destino.
+            clave_estrategia (str): El tipo de movimiento ("normal", "bar", "bear_off").
+        Hace:
+            Interactúa con el tablero.
+            1. Si el movimiento no es "bear_off", verifica si debe hacer 'hit'.
+            2. Llama a `self.__board__.mover_ficha()` para mover la ficha.
+        Devuelve:
+            Nada.
+        """
         player_color = self.obtener_jugador_actual().ficha
 
         if clave_estrategia != "bear_off":
@@ -192,7 +308,18 @@ class BackgammonGame:
     def usar_dado_para_movimiento(
         self, start_point: int, end_point: int, clave_estrategia: str
     ):
-        """Calcula el dado utilizado y lo elimina de la lista de dados."""
+        """
+        Recibe:
+            start_point (int): El punto de origen.
+            end_point (int): El punto de destino.
+            clave_estrategia (str): El tipo de movimiento.
+        Hace:
+            Calcula qué dado se utilizó para el movimiento (incluyendo
+            la lógica de 'bear off' con dado mayor) y lo elimina de
+            la lista `__dados_restantes__`.
+        Devuelve:
+            Nada.
+        """
         is_white = self.obtener_jugador_actual().is_white()
 
         required_distance = 0
@@ -224,6 +351,16 @@ class BackgammonGame:
             pass
 
     def check_victory(self) -> bool:
-        """Verifica si el jugador actual ha ganado."""
+        """
+        Recibe:
+            Nada.
+        Hace:
+            Verifica si el jugador actual ha ganado llamando a
+            `get_piece_count` en el tablero.
+        Devuelve:
+            (bool): True si el jugador actual tiene 0 fichas en juego,
+                    False en caso contrario.
+        """
         player_color = self.obtener_jugador_actual().ficha
         return self.__board__.get_piece_count(player_color) == 0
+

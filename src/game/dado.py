@@ -14,8 +14,15 @@ class Dice:
     @staticmethod
     def get_dice():
         """
-        Realiza la tirada de dados.
-        Retorna una tupla de 4 si es doble, si no, una tupla de 2.
+        Recibe:
+            Nada.
+        Hace:
+            Simula una tirada de dos dados de 6 caras. Si los valores son
+            iguales (dobles), genera cuatro valores idénticos.
+        Devuelve:
+            (tuple): Una tupla de 2 enteros (ej: (5, 2)) o 4 enteros
+                     si es doble (ej: (3, 3, 3, 3)). Retorna una tupla
+                     vacía si ocurre un error.
         """
         try:
             dice_0 = random.randint(1, 6)
