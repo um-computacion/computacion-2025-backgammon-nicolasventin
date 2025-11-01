@@ -27,12 +27,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - 2025-10-30 — Agrego test de backgammon game, sumo tests para pasar el +90% de coverage e implemento los mock tests con @patch
 - 2025-10-30 — Agrego tests con pequeños cambios debido a la refactorizacion
 - 2025-10-31 — Agrego pygame junto con los prompts de IA
+- 2025-11-01 — Agrego JUSTIFICACION.md finalizada, actualizo CHANGELOG.md, dejo listo README
+
 
 ### Changed
 - 2025-10-29 — Mejoro la calidad de codigo
 - 2025-10-30 — Actualizo CLI finalizado junto con sus tests
 - 2025-10-30 — Mejora de codigo
 - 2025-10-30 — Saco espacios en blanco
+- 2025-11-01 — subo puntaje pylint
+- 2025-11-01 — Actualizo CHANGELOG.md
+
 
 ### Fixed
 - 2025-10-29 — arreglo coveragerc
@@ -42,11 +47,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - 2025-10-29 — arreglo pipeline
 - 2025-10-29 — arreglo pipeline
 - 2025-10-30 — pequeños arreglos en backgammongame
+- 2025-11-01 — Arreglo docstrings segun requisitos
+- 2025-11-01 — Arreglo readme.md
+
 
 ### Documentation
 - 2025-10-29 — docs: Update automated reports [skip ci]
 - 2025-10-31 — docs: Update automated reports [skip ci]
-
+- 2025-11-01 — Arreglo docstrings segun requisitos
 
 
 ### Refactor

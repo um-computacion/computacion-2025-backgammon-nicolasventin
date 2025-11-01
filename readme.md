@@ -51,7 +51,7 @@ Se recomienda encarecidamente utilizar un entorno virtual (`venv`) para gestiona
 Para iniciar la versión con interfaz gráfica, ejecuta el archivo `pygame_ui.py`:
 
 ```bash
-python3 src/ui/pygame_ui.py
+python3 -m src.ui.pygame_ui
 ```
 
 ### 2\. Interfaz de Línea de Comandos (CLI)
@@ -59,7 +59,7 @@ python3 src/ui/pygame_ui.py
 Para iniciar la versión de consola, ejecuta el archivo `cli.py`:
 
 ```bash
-python3 src/ui/cli.py
+python3 -m src.ui.cli
 ```
 
 -----
