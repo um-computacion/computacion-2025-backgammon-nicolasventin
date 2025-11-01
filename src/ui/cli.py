@@ -17,11 +17,28 @@ class CLIRenderer:
     BOARD_WIDTH = 52
 
     def clear_screen(self):
-        """Limpia la pantalla de la consola."""
+        """
+        Recibe:
+            Nada.
+        Hace:
+            Limpia la pantalla de la terminal usando 'cls' (Windows)
+            o 'clear' (Linux/macOS).
+        Devuelve:
+            Nada.
+        """
         os.system('cls' if os.name == 'nt' else 'clear')
 
     def get_drawing_grid(self, tablero: Tablero) -> list[list[str]]:
-        """Crea la matriz de datos 10x12 para dibujar."""
+        """
+        Recibe:
+            tablero (Tablero): La instancia del tablero de juego.
+        Hace:
+            Crea la matriz de datos 10x12 para dibujar el tablero.
+            Consulta al tablero usando `get_point_info` (DIP) y
+            coloca los caracteres 'W' y 'B' en la grilla.
+        Devuelve:
+            (list[list[str]]): La matriz 10x12 representando el tablero.
+        """
         height, width = 10, 12
         grid = [[" " for _ in range(width)] for _ in range(height)]
 
@@ -55,7 +72,17 @@ class CLIRenderer:
         return grid
 
     def get_owner_and_count(self, tablero: Tablero, idx: int) -> tuple[str | None, int]:
-        """Helper INTERNO para 'draw'."""
+        """
+        Recibe:
+            tablero (Tablero): La instancia del tablero.
+            idx (int): El índice del punto (0-23).
+        Hace:
+            Es un helper INTERNO para `get_drawing_grid`. Consulta
+            `tablero.get_point_info` y traduce el color ('W'/'B')
+            a un string ('white'/'black').
+        Devuelve:
+            (tuple): ('white'/'black' o None, count).
+        """
         color, count = tablero.get_point_info(idx)
         if color is None:
             return (None, 0)
@@ -63,11 +90,27 @@ class CLIRenderer:
         return (owner_str, count)
 
     def get_piece_char(self, owner: str) -> str:
-        """Helper: Retorna el símbolo 'W' o 'B'."""
+        """
+        Recibe:
+            owner (str): 'white' o 'black'.
+        Hace:
+            Traduce el string 'white'/'black' al caracter 'W'/'B'.
+        Devuelve:
+            (str): 'W' o 'B'.
+        """
         return "W" if owner == "white" else "B"
 
     def mostrar_tablero(self, tablero: Tablero):
-        """Imprime la representación gráfica del tablero."""
+        """
+        Recibe:
+            tablero (Tablero): La instancia del tablero.
+        Hace:
+            1. Llama a `get_drawing_grid` para obtener la matriz.
+            2. Imprime por consola la representación gráfica completa
+               del tablero, incluyendo cabeceras y la barra.
+        Devuelve:
+            Nada.
+        """
         grid = self.get_drawing_grid(tablero)
 
         print(" 11  10  09  08  07  06  ||  05  04  03  02  01  00")
@@ -89,7 +132,15 @@ class CLIRenderer:
         print(" 12  13  14  15  16  17  ||  18  19  20  21  22  23")
 
     def mostrar_estado_juego(self, game: BackgammonGame):
-        """Muestra la información del turno actual."""
+        """
+        Recibe:
+            game (BackgammonGame): La instancia del juego.
+        Hace:
+            Consulta el estado actual del juego (jugador actual, dados,
+            conteo en barra) y lo imprime en la consola.
+        Devuelve:
+            Nada.
+        """
         jugador = game.obtener_jugador_actual()
         fichas_bar_blancas = game.__board__.get_bar_count("W")
         fichas_bar_negras = game.__board__.get_bar_count("B")
@@ -101,23 +152,51 @@ class CLIRenderer:
         print("=" * self.BOARD_WIDTH + "\n")
 
     def mostrar_mensaje(self, mensaje: str):
-        """Muestra un mensaje genérico al usuario."""
+        """
+        Recibe:
+            mensaje (str): Un mensaje de información.
+        Hace:
+            Imprime el mensaje con formato de información (>>).
+        Devuelve:
+            Nada.
+        """
         print(f"\n>> {mensaje}\n")
 
     def mostrar_mensaje_error(self, mensaje: str):
-        """Muestra un mensaje de error formateado."""
+        """
+        Recibe:
+            mensaje (str): Un mensaje de error.
+        Hace:
+            Imprime el mensaje con formato de error (¡ERROR!).
+        Devuelve:
+            Nada.
+        """
         print(f"\n¡ERROR! {mensaje}")
         print("-" * self.BOARD_WIDTH)
 
     def mostrar_ganador(self, jugador: Jugador):
-        """Muestra el mensaje de victoria."""
+        """
+        Recibe:
+            jugador (Jugador): El jugador que ha ganado la partida.
+        Hace:
+            Imprime un mensaje de victoria felicitando al jugador.
+        Devuelve:
+            Nada.
+        """
         print("*" * self.BOARD_WIDTH)
         print(f"\n¡¡¡ FELICITACIONES, {jugador.obtener_info()} !!!")
         print("¡HAS GANADO LA PARTIDA!")
         print("*" * self.BOARD_WIDTH)
 
     def pausar_para_continuar(self):
-        """Pausa la ejecución hasta que el usuario presione Enter."""
+        """
+        Recibe:
+            Nada.
+        Hace:
+            Pausa la ejecución y espera que el usuario presione Enter.
+        Devuelve:
+            Nada.
+        """
         input("\nPresiona Enter para continuar...")
 
 
@@ -125,13 +204,31 @@ class CLIController:
     """Maneja el flujo del juego (el 'Controlador')."""
 
     def __init__(self):
-        """Inicializa el juego (Modelo) y el renderer (Vista)."""
+        """
+        Recibe:
+            Nada.
+        Hace:
+            Inicializa las instancias del Modelo (`BackgammonGame`)
+            y de la Vista (`CLIRenderer`).
+        Devuelve:
+            Nada.
+        """
         self.__game__ = BackgammonGame("Jugador 1", "Jugador 2")
         self.__renderer__ = CLIRenderer()
         self.__ultimo_error__: Optional[str] = None
 
     def parsear_input(self, input_str: str, color_jugador: str) -> tuple[int, int]:
-        """Convierte el input del usuario a (start_point, end_point)."""
+        """
+        Recibe:
+            input_str (str): El texto ingresado por el usuario (ej: "23 18").
+            color_jugador (str): 'W' o 'B', para mapear "BAR" y "OFF".
+        Hace:
+            Convierte el string de entrada en los índices numéricos
+            que entiende el `BackgammonGame`. Mapea "BAR" a 24 (W) o -1 (B)
+            y "OFF" a -1 (W) o 25 (B).
+        Devuelve:
+            (tuple[int, int]): (start_point, end_point).
+        """
         partes = input_str.strip().upper().split()
         if len(partes) != 2:
             raise ValueError("Input inválido. Se esperan 2 partes (ej: '5 2' o 'BAR 3').")
@@ -157,7 +254,22 @@ class CLIController:
         return (start_point, end_point)
 
     def realizar_turno(self, jugador: Jugador):
-        """Maneja la lógica completa de un solo turno (tirar dados, mover)."""
+        """
+        Recibe:
+            jugador (Jugador): El jugador que tiene el turno.
+        Hace:
+            Maneja el bucle completo de un turno:
+            1. Tira los dados.
+            2. Mientras queden dados:
+               a. Renderiza el tablero y estado.
+               b. Pide un input al usuario.
+               c. Parsea el input.
+               d. Valida el movimiento con `game.validar_movimiento`.
+               e. Ejecuta el movimiento con `game.ejecutar_movimiento`.
+               f. Maneja errores de parseo, validación o ejecución.
+        Devuelve:
+            Nada.
+        """
 
         dados = self.__game__.tirar_dados()
         self.__renderer__.mostrar_mensaje(f"{jugador.obtener_info()} ha sacado: {dados}")
@@ -205,7 +317,16 @@ class CLIController:
         time.sleep(1.5)
 
     def iniciar_juego(self):
-        """Inicia el bucle principal del juego."""
+        """
+        Recibe:
+            Nada.
+        Hace:
+            Inicia el bucle principal del juego. Alterna los turnos
+            infinitamente hasta que `game.check_victory()` sea True.
+            Al finalizar, muestra al ganador.
+        Devuelve:
+            Nada.
+        """
         jugador_ganador = None
 
         while True:
